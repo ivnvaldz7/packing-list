@@ -4,7 +4,6 @@ export type DocumentHeader = {
   laboratoryName: string;
   invoiceNumber: string;
   country: ShipmentCountry;
-  client: string;
   address: string;
   transportType: 'Maritimo' | 'Aereo' | 'Terrestre';
 };
@@ -16,8 +15,10 @@ export type Product = {
   code: string;
   name: string;
   lotPrefix: string;
+  productionNumber: string;
   unit: ProductUnit;
   unitsPerBox: number;
+  weightPerBoxKg: number;
 };
 
 export type PalletItem = {
@@ -26,10 +27,11 @@ export type PalletItem = {
   sku: string;
   description: string;
   lotPrefix: string;
+  productionNumber: string;
   unit: ProductUnit;
   unitsPerBox: number;
+  weightPerBoxKg: number;
   quantity: number;
-  unitNetWeightKg: number;
 };
 
 export type Pallet = {
@@ -51,7 +53,6 @@ export type HeaderValidation = Partial<Record<keyof DocumentHeader, string>>;
 export type ItemValidation = {
   productId?: string;
   quantity?: string;
-  unitNetWeightKg?: string;
 };
 
 export type PalletValidation = {
@@ -66,6 +67,7 @@ export type ShipmentValidation = {
 };
 
 export type PalletItemComputed = PalletItem & {
+  boxesCount: number;
   netWeightKg: number;
 };
 

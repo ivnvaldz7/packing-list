@@ -16,19 +16,12 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
         <h2>Cabecera de la lista de empaque</h2>
       </div>
       <p className="panel-copy">
-        Cargá los datos que van impresos arriba de la hoja para que el documento salga como el
-        modelo del laboratorio.
+        El pais aplica una configuracion fija para la cabecera. Solo quedan variables el numero
+        de factura y el tipo de transporte.
       </p>
     </div>
 
     <div className="grid grid-2">
-      <InputField
-        label="Laboratorio"
-        value={header.laboratoryName}
-        error={errors.laboratoryName}
-        onChange={(event) => onChange('laboratoryName', event.target.value)}
-        placeholder="Laboratorios Aurofarma"
-      />
       <InputField
         label="Factura N°"
         value={header.invoiceNumber}
@@ -43,13 +36,6 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
         options={shipmentCountries}
         error={errors.country}
       />
-      <InputField
-        label="Cliente"
-        value={header.client}
-        error={errors.client}
-        onChange={(event) => onChange('client', event.target.value)}
-        placeholder="Cliente / importador"
-      />
       <SelectField
         label="Transporte"
         value={header.transportType}
@@ -62,12 +48,22 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
           { value: 'Terrestre', label: 'Terrestre' },
         ]}
       />
+    </div>
+
+    <div className="grid grid-2 header-autofill-grid">
       <InputField
-        label="Direccion"
+        label="Laboratorio autocompletado"
+        value={header.laboratoryName}
+        onChange={() => undefined}
+        readOnly
+        className="readonly-input"
+      />
+      <InputField
+        label="Direccion autocompletada"
         value={header.address}
-        error={errors.address}
-        onChange={(event) => onChange('address', event.target.value)}
-        placeholder="Direccion del cliente o destino de entrega"
+        onChange={() => undefined}
+        readOnly
+        className="readonly-input"
       />
     </div>
   </section>

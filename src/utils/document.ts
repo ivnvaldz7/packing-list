@@ -1,3 +1,4 @@
+import { getCountryPreset } from '../data/countries';
 import type { DocumentHeader, Pallet, PalletItem, ProductUnit, ShipmentDocument } from '../types';
 
 const DEFAULT_PALLET_WEIGHT_KG = 26;
@@ -9,10 +10,11 @@ const normalizeItem = (item: Partial<PalletItem>): PalletItem => ({
   sku: item.sku ?? '',
   description: item.description ?? '',
   lotPrefix: item.lotPrefix ?? '',
+  productionNumber: item.productionNumber ?? '',
   unit: item.unit ?? DEFAULT_UNIT,
   unitsPerBox: typeof item.unitsPerBox === 'number' ? item.unitsPerBox : 0,
+  weightPerBoxKg: typeof item.weightPerBoxKg === 'number' ? item.weightPerBoxKg : 0,
   quantity: typeof item.quantity === 'number' ? item.quantity : 1,
-  unitNetWeightKg: typeof item.unitNetWeightKg === 'number' ? item.unitNetWeightKg : 0,
 });
 
 const normalizePallet = (pallet: Partial<Pallet>): Pallet => ({
@@ -29,35 +31,20 @@ const normalizePallet = (pallet: Partial<Pallet>): Pallet => ({
 });
 
 const normalizeHeader = (header?: Partial<DocumentHeader> & Record<string, unknown>): DocumentHeader => ({
-  laboratoryName:
-    typeof header?.laboratoryName === 'string' && header.laboratoryName.trim()
-      ? header.laboratoryName
-      : 'Laboratorios Aurofarma',
+  ...getCountryPreset(
+    header?.country === 'PANAMA' ||
+      header?.country === 'COLOMBIA' ||
+      header?.country === 'PARAGUAY' ||
+      header?.country === 'BOLIVIA' ||
+      header?.country === 'ECUADOR'
+      ? header.country
+      : 'PANAMA',
+  ),
   invoiceNumber:
     typeof header?.invoiceNumber === 'string'
       ? header.invoiceNumber
       : typeof header?.documentCode === 'string'
         ? header.documentCode
-        : '',
-  country:
-    header?.country === 'PANAMA' ||
-    header?.country === 'COLOMBIA' ||
-    header?.country === 'PARAGUAY' ||
-    header?.country === 'BOLIVIA' ||
-    header?.country === 'ECUADOR'
-      ? header.country
-      : 'PANAMA',
-  client:
-    typeof header?.client === 'string'
-      ? header.client
-      : typeof header?.consignee === 'string'
-        ? header.consignee
-        : '',
-  address:
-    typeof header?.address === 'string'
-      ? header.address
-      : typeof header?.destination === 'string'
-        ? header.destination
         : '',
   transportType:
     header?.transportType === 'Aereo' ||

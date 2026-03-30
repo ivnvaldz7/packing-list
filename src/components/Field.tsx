@@ -23,6 +23,8 @@ type InputFieldProps = {
   onChange: ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
   error?: string;
+  readOnly?: boolean;
+  className?: string;
 };
 
 export const InputField = ({
@@ -34,6 +36,8 @@ export const InputField = ({
   onChange,
   placeholder,
   error,
+  readOnly,
+  className,
 }: InputFieldProps) => (
   <Field label={label} error={error}>
     <input
@@ -44,6 +48,8 @@ export const InputField = ({
       onChange={onChange}
       placeholder={placeholder}
       aria-invalid={Boolean(error)}
+      readOnly={readOnly}
+      className={className}
     />
   </Field>
 );

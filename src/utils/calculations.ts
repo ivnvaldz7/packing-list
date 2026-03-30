@@ -2,11 +2,15 @@ import type { Pallet, PalletComputed, PalletItem, PalletItemComputed } from '../
 
 const roundTo3 = (value: number): number => Math.round(value * 1000) / 1000;
 
+export const calculateItemBoxes = (item: PalletItem): number =>
+  item.unitsPerBox > 0 ? roundTo3(item.quantity / item.unitsPerBox) : 0;
+
 export const calculateItemNetWeight = (item: PalletItem): number =>
-  roundTo3(item.quantity * item.unitNetWeightKg);
+  roundTo3(calculateItemBoxes(item) * item.weightPerBoxKg);
 
 export const calculateComputedItem = (item: PalletItem): PalletItemComputed => ({
   ...item,
+  boxesCount: calculateItemBoxes(item),
   netWeightKg: calculateItemNetWeight(item),
 });
 

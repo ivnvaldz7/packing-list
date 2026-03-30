@@ -45,7 +45,6 @@ export const exportShipmentDocumentPdf = async (
     `Laboratorio: ${document.header.laboratoryName || '-'}`,
     `Factura N°: ${document.header.invoiceNumber || '-'}`,
     `Pais: ${document.header.country || '-'}`,
-    `Cliente: ${document.header.client || '-'}`,
     `Direccion: ${document.header.address || '-'}`,
     `Transporte: ${document.header.transportType || '-'}`,
   ];
@@ -83,15 +82,15 @@ export const exportShipmentDocumentPdf = async (
 
     autoTable(pdf, {
       startY: cursorY + 2,
-      head: [['Item', 'Producto', 'SKU', 'Lote', 'Unidad', 'Cantidad', 'Kg unit.', 'Kg item']],
+      head: [['Item', 'Producto', 'Lote', 'Fr/caja', 'Frascos', 'Cajas', 'Kg/caja', 'Kg item']],
       body: pallet.items.map((item, itemIndex) => [
         String(itemIndex + 1),
         item.description || '-',
-        item.sku || '-',
-        item.lotPrefix || '-',
-        item.unit,
+        `${item.lotPrefix || ''}${item.productionNumber || ''}` || '-',
+        String(item.unitsPerBox),
         String(item.quantity),
-        formatWeightCell(item.unitNetWeightKg),
+        String(item.boxesCount),
+        formatWeightCell(item.weightPerBoxKg),
         formatWeightCell(item.netWeightKg),
       ]),
       styles: {
@@ -109,12 +108,12 @@ export const exportShipmentDocumentPdf = async (
       },
       columnStyles: {
         0: { cellWidth: 10 },
-        1: { cellWidth: 44 },
-        2: { cellWidth: 24 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 18 },
+        1: { cellWidth: 56 },
+        2: { cellWidth: 20 },
+        3: { cellWidth: 18, halign: 'right' },
+        4: { cellWidth: 18, halign: 'right' },
         5: { cellWidth: 18, halign: 'right' },
-        6: { cellWidth: 24, halign: 'right' },
+        6: { cellWidth: 22, halign: 'right' },
         7: { cellWidth: 24, halign: 'right' },
       },
     });

@@ -19,15 +19,6 @@ const validateHeader = (header: DocumentHeader): HeaderValidation => {
   if (isBlank(header.country)) {
     errors.country = 'Seleccioná el pais.';
   }
-  if (isBlank(header.client)) {
-    errors.client = 'Completá el cliente.';
-  }
-  if (isBlank(header.address)) {
-    errors.address = 'Completá la direccion.';
-  }
-  if (isBlank(header.laboratoryName)) {
-    errors.laboratoryName = 'Completá el nombre del laboratorio.';
-  }
 
   return errors;
 };
@@ -41,9 +32,6 @@ const validatePallet = (pallet: Pallet): PalletValidation => {
     }
     if (item.quantity <= 0) {
       errors.quantity = 'La cantidad debe ser mayor a 0.';
-    }
-    if (item.unitNetWeightKg < 0) {
-      errors.unitNetWeightKg = 'El peso unitario no puede ser negativo.';
     }
 
     if (Object.keys(errors).length > 0) {

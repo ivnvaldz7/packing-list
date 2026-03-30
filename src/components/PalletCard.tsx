@@ -17,7 +17,7 @@ type PalletCardProps = {
   onUpdateItem: (
     palletId: string,
     itemId: string,
-    field: 'lotPrefix' | 'quantity' | 'unitNetWeightKg',
+    field: 'productionNumber' | 'quantity',
     value: string | number,
   ) => void;
   onRemoveItem: (palletId: string, itemId: string) => void;
@@ -42,25 +42,31 @@ export const PalletCard = ({
   onUpdateItem,
   onRemoveItem,
 }: PalletCardProps) => (
-  <section className="panel pallet-card">
-    <div className="panel-header">
-      <div>
-        <p className="eyebrow">Paso 2 y 3</p>
-        <h2>{`Paleta ${index + 1}`}</h2>
-        {pallet.label.trim() && pallet.label !== `Paleta ${index + 1}` ? (
-          <p className="panel-copy">Nombre interno: {pallet.label}</p>
-        ) : null}
+  <section className="manifest-pallet">
+    <div className="manifest-pallet-head">
+      <div className="manifest-pallet-head-left">
+        <span className="manifest-pallet-badge">{`Paleta ${String(index + 1).padStart(2, '0')}`}</span>
+        <div className="manifest-pallet-tare">
+          <label>Peso tarima (kg)</label>
+          <input
+            type="number"
+            min={0}
+            step={0.001}
+            value={pallet.palletTareWeightKg}
+            onChange={(event) => onUpdatePallet(pallet.id, 'palletTareWeightKg', parseNumber(event))}
+          />
+        </div>
       </div>
       <div className="panel-actions">
-        <button type="button" className="secondary-button" onClick={() => onAddItem(pallet.id)}>
-          Agregar ítem
+        <button type="button" className="secondary-button manifest-button" onClick={() => onAddItem(pallet.id)}>
+          Agregar item
         </button>
-        <button type="button" className="secondary-button" onClick={() => onClonePallet(pallet.id)}>
+        <button type="button" className="secondary-button manifest-button" onClick={() => onClonePallet(pallet.id)}>
           Duplicar paleta
         </button>
         <button
           type="button"
-          className="ghost-button"
+          className="ghost-button manifest-button"
           onClick={() => onRemovePallet(pallet.id)}
           disabled={!canRemove}
         >
@@ -69,43 +75,34 @@ export const PalletCard = ({
       </div>
     </div>
 
-    <div className="grid grid-2">
+    <div className="grid grid-1 manifest-pallet-meta">
       <InputField
-        label="Nombre de paleta"
+        label="Nombre interno"
         value={pallet.label}
         onChange={(event) => onUpdatePallet(pallet.id, 'label', event.target.value)}
         placeholder={`Paleta ${index + 1}`}
       />
-      <InputField
-        label="Peso tarima (kg)"
-        type="number"
-        min={0}
-        step={0.001}
-        value={pallet.palletTareWeightKg}
-        onChange={(event) => onUpdatePallet(pallet.id, 'palletTareWeightKg', parseNumber(event))}
-      />
     </div>
 
     <div className="table-shell">
-      <table>
+      <table className="manifest-table">
         <thead>
           <tr>
-            <th>Ítem</th>
             <th>Producto</th>
-            <th>SKU</th>
-            <th>Prefijo lote</th>
-            <th>Unidad</th>
-            <th>Por caja</th>
-            <th>Cantidad</th>
-            <th>Kg netos unit.</th>
-            <th>Kg netos ítem</th>
+            <th>Prefijo</th>
+            <th>Prod.</th>
+            <th>Und.</th>
+            <th>Frascos/caja</th>
+            <th>Frascos</th>
+            <th>Cajas</th>
+            <th>Peso/caja</th>
+            <th>Peso total</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {pallet.items.map((item, itemIndex) => (
+          {pallet.items.map((item) => (
             <tr key={item.id}>
-              <td className="item-index-cell">{itemIndex + 1}</td>
               <td>
                 <select
                   className={itemErrors[item.id]?.productId ? 'input-error' : ''}
@@ -124,25 +121,26 @@ export const PalletCard = ({
                 ) : null}
               </td>
               <td>
-                <input value={item.sku} readOnly className="readonly-input" placeholder="Auto" />
+                <input value={item.lotPrefix} readOnly className="readonly-input center-input" />
               </td>
               <td>
                 <input
-                  value={item.lotPrefix}
+                  value={item.productionNumber}
                   onChange={(event) =>
-                    onUpdateItem(pallet.id, item.id, 'lotPrefix', event.target.value)
+                    onUpdateItem(pallet.id, item.id, 'productionNumber', event.target.value)
                   }
-                  placeholder="Prefijo lote"
+                  className="center-input"
+                  placeholder="138"
                 />
               </td>
               <td>
-                <input value={item.unit} readOnly className="readonly-input" />
+                <input value={item.unit} readOnly className="readonly-input center-input" />
               </td>
               <td>
                 <input
                   value={item.unitsPerBox || ''}
                   readOnly
-                  className="readonly-input"
+                  className="readonly-input center-input"
                   placeholder="Auto"
                 />
               </td>
@@ -151,7 +149,7 @@ export const PalletCard = ({
                   type="number"
                   min={0}
                   step={1}
-                  className={itemErrors[item.id]?.quantity ? 'input-error' : ''}
+                  className={itemErrors[item.id]?.quantity ? 'input-error center-input' : 'center-input'}
                   value={item.quantity}
                   onChange={(event) =>
                     onUpdateItem(pallet.id, item.id, 'quantity', parseNumber(event))
@@ -162,25 +160,16 @@ export const PalletCard = ({
                 ) : null}
               </td>
               <td>
-                <input
-                  type="number"
-                  min={0}
-                  step={0.001}
-                  className={itemErrors[item.id]?.unitNetWeightKg ? 'input-error' : ''}
-                  value={item.unitNetWeightKg}
-                  onChange={(event) =>
-                    onUpdateItem(pallet.id, item.id, 'unitNetWeightKg', parseNumber(event))
-                  }
-                />
-                {itemErrors[item.id]?.unitNetWeightKg ? (
-                  <small className="table-error">{itemErrors[item.id]?.unitNetWeightKg}</small>
-                ) : null}
+                <input value={item.boxesCount} readOnly className="readonly-input center-input" />
+              </td>
+              <td>
+                <input value={item.weightPerBoxKg} readOnly className="readonly-input center-input" />
               </td>
               <td className="metric-cell">{formatWeight(item.netWeightKg)}</td>
               <td className="actions-cell">
                 <button
                   type="button"
-                  className="ghost-button small-button"
+                  className="ghost-button small-button manifest-button"
                   onClick={() => onRemoveItem(pallet.id, item.id)}
                   disabled={pallet.items.length === 1}
                 >
@@ -193,19 +182,10 @@ export const PalletCard = ({
       </table>
     </div>
 
-    <div className="summary-row">
-      <article className="summary-card">
-        <span>Peso neto total</span>
-        <strong>{formatWeight(pallet.totalNetWeightKg)}</strong>
-      </article>
-      <article className="summary-card">
-        <span>Peso bruto total</span>
-        <strong>{formatWeight(pallet.totalGrossWeightKg)}</strong>
-      </article>
-      <article className="summary-card">
-        <span>Peso tarima</span>
-        <strong>{formatWeight(pallet.palletTareWeightKg)}</strong>
-      </article>
+    <div className="manifest-pallet-footer">
+      <span>{`Subtotal neto ${formatWeight(pallet.totalNetWeightKg)}`}</span>
+      <span>{`Peso bruto ${formatWeight(pallet.totalGrossWeightKg)}`}</span>
+      <span>{`Tarima ${formatWeight(pallet.palletTareWeightKg)}`}</span>
     </div>
   </section>
 );

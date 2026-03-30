@@ -42,10 +42,6 @@ export const PrintDocumentView = ({
             <strong>{document.header.country || '-'}</strong>
           </p>
           <p>
-            <span>Cliente:</span>
-            <strong>{document.header.client || '-'}</strong>
-          </p>
-          <p>
             <span>Direccion:</span>
             <strong>{document.header.address || '-'}</strong>
           </p>
@@ -88,11 +84,11 @@ export const PrintDocumentView = ({
             <tr>
               <th>Item</th>
               <th>Producto</th>
-              <th>SKU</th>
               <th>Lote</th>
-              <th>Unidad</th>
-              <th>Cantidad</th>
-              <th>Kg unit.</th>
+              <th>Fr/caja</th>
+              <th>Frascos</th>
+              <th>Cajas</th>
+              <th>Kg/caja</th>
               <th>Kg item</th>
             </tr>
           </thead>
@@ -101,11 +97,11 @@ export const PrintDocumentView = ({
               <tr key={item.id}>
                 <td>{itemIndex + 1}</td>
                 <td>{item.description || '-'}</td>
-                <td>{item.sku || '-'}</td>
-                <td>{item.lotPrefix || '-'}</td>
-                <td>{item.unit}</td>
+                <td>{`${item.lotPrefix || ''}${item.productionNumber || ''}` || '-'}</td>
+                <td>{item.unitsPerBox}</td>
                 <td>{item.quantity}</td>
-                <td>{formatWeight(item.unitNetWeightKg)}</td>
+                <td>{item.boxesCount}</td>
+                <td>{formatWeight(item.weightPerBoxKg)}</td>
                 <td>{formatWeight(item.netWeightKg)}</td>
               </tr>
             ))}

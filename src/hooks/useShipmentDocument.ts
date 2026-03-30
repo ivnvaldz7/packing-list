@@ -1,3 +1,4 @@
+import { getCountryPreset } from '../data/countries';
 import { useEffect, useMemo, useState } from 'react';
 import { productCatalog } from '../data/products';
 import { clearDocument, loadDocument, saveDocument } from '../db/indexedDb';
@@ -65,15 +66,27 @@ export const useShipmentDocument = () => {
   }, [document, status]);
 
   const updateHeader = <K extends keyof DocumentHeader>(field: K, value: DocumentHeader[K]): void => {
-    setDocument((current) =>
-      touch({
+    setDocument((current) => {
+      if (field === 'country') {
+        const countryValue = value as DocumentHeader['country'];
+
+        return touch({
+          ...current,
+          header: {
+            ...current.header,
+            ...getCountryPreset(countryValue),
+          },
+        });
+      }
+
+      return touch({
         ...current,
         header: {
           ...current.header,
           [field]: value,
         },
-      }),
-    );
+      });
+    });
   };
 
   const addPallet = (): void => {
@@ -204,8 +217,10 @@ export const useShipmentDocument = () => {
                         sku: selectedProduct.code,
                         description: selectedProduct.name,
                         lotPrefix: selectedProduct.lotPrefix,
+                        productionNumber: selectedProduct.productionNumber,
                         unit: selectedProduct.unit,
                         unitsPerBox: selectedProduct.unitsPerBox,
+                        weightPerBoxKg: selectedProduct.weightPerBoxKg,
                       }
                     : item,
                 ),

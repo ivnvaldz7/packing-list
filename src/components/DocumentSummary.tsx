@@ -21,39 +21,54 @@ export const DocumentSummary = ({
   );
 
   return (
-    <section className="panel">
-      <div className="panel-header">
-        <div>
-          <p className="eyebrow">Resumen</p>
-          <h2>Resumen general del documento</h2>
-        </div>
-        <p className={`status-badge ${isValid ? 'status-valid' : 'status-warning'}`}>
-          {isValid ? 'Listo para seguir' : 'Faltan datos mínimos'}
+    <section className="summary-layout">
+      <article className="notes-panel">
+        <h3>Notas de exportacion</h3>
+        <p>
+          Mercaderia registrada para preparacion de embarque. La hoja consolida paletas, cantidades,
+          lotes y pesos operativos para control documental interno.
         </p>
-      </div>
+        <div className="notes-signatures">
+          <div>
+            <span />
+            <p>Firma responsable logistica</p>
+          </div>
+          <div>
+            <span />
+            <p>Sello institucional Ale-Bet</p>
+          </div>
+        </div>
+      </article>
 
-      <div className="summary-row summary-row-5">
-        <article className="summary-card">
-          <span>Paletas</span>
-          <strong>{document.pallets.length}</strong>
-        </article>
-        <article className="summary-card">
-          <span>Ítems cargados</span>
-          <strong>{totalItems}</strong>
-        </article>
-        <article className="summary-card">
-          <span>Total de unidades</span>
+      <article className="manifest-summary-card">
+        <h3>Resumen consolidado de carga</h3>
+        <div className="manifest-summary-row">
+          <span>Total paletas</span>
+          <strong>{String(document.pallets.length).padStart(2, '0')}</strong>
+        </div>
+        <div className="manifest-summary-row">
+          <span>Items cargados</span>
+          <strong>{String(totalItems).padStart(2, '0')}</strong>
+        </div>
+        <div className="manifest-summary-row">
+          <span>Total unidades</span>
           <strong>{totalUnits}</strong>
-        </article>
-        <article className="summary-card">
+        </div>
+        <div className="manifest-summary-row">
           <span>Peso neto total</span>
           <strong>{formatWeight(totalNetWeightKg)}</strong>
-        </article>
-        <article className="summary-card">
-          <span>Peso bruto total</span>
+        </div>
+        <div className="manifest-summary-row">
+          <span>Peso bruto estimado</span>
           <strong>{formatWeight(totalGrossWeightKg)}</strong>
-        </article>
-      </div>
+        </div>
+        <div className="manifest-status-row">
+          <span>Estado</span>
+          <strong className={`manifest-status-chip ${isValid ? 'manifest-status-valid' : 'manifest-status-warning'}`}>
+            {isValid ? 'Borrador validado' : 'Revision pendiente'}
+          </strong>
+        </div>
+      </article>
     </section>
   );
 };
