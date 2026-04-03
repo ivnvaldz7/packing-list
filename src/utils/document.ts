@@ -1,11 +1,12 @@
 import { getCountryPreset } from '../data/countries';
 import type { DocumentHeader, Pallet, PalletItem, ProductUnit, ShipmentDocument } from '../types';
+import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
 
-const DEFAULT_PALLET_WEIGHT_KG = 26;
 const DEFAULT_UNIT: ProductUnit = 'Frascos';
 
 const normalizeItem = (item: Partial<PalletItem>): PalletItem => ({
   id: item.id ?? crypto.randomUUID(),
+  planId: item.planId ?? item.id ?? crypto.randomUUID(),
   productId: item.productId ?? '',
   sku: item.sku ?? '',
   description: item.description ?? '',
@@ -14,16 +15,19 @@ const normalizeItem = (item: Partial<PalletItem>): PalletItem => ({
   unit: item.unit ?? DEFAULT_UNIT,
   unitsPerBox: typeof item.unitsPerBox === 'number' ? item.unitsPerBox : 0,
   weightPerBoxKg: typeof item.weightPerBoxKg === 'number' ? item.weightPerBoxKg : 0,
-  quantity: typeof item.quantity === 'number' ? item.quantity : 1,
+  plannedQuantity:
+    typeof item.plannedQuantity === 'number'
+      ? item.plannedQuantity
+      : typeof item.quantity === 'number'
+        ? item.quantity
+        : 0,
+  quantity: typeof item.quantity === 'number' ? item.quantity : 0,
 });
 
 const normalizePallet = (pallet: Partial<Pallet>): Pallet => ({
   id: pallet.id ?? crypto.randomUUID(),
   label: pallet.label ?? 'Paleta',
-  palletTareWeightKg:
-    typeof pallet.palletTareWeightKg === 'number'
-      ? pallet.palletTareWeightKg
-      : DEFAULT_PALLET_WEIGHT_KG,
+  palletTareWeightKg: FIXED_PALLET_TARE_WEIGHT_KG,
   items:
     pallet.items && pallet.items.length > 0
       ? pallet.items.map((item) => normalizeItem(item))

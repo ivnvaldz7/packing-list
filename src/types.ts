@@ -23,6 +23,7 @@ export type Product = {
 
 export type PalletItem = {
   id: string;
+  planId: string;
   productId: string;
   sku: string;
   description: string;
@@ -31,6 +32,7 @@ export type PalletItem = {
   unit: ProductUnit;
   unitsPerBox: number;
   weightPerBoxKg: number;
+  plannedQuantity: number;
   quantity: number;
 };
 
@@ -52,7 +54,9 @@ export type HeaderValidation = Partial<Record<keyof DocumentHeader, string>>;
 
 export type ItemValidation = {
   productId?: string;
+  productionNumber?: string;
   quantity?: string;
+  weightPerBoxKg?: string;
 };
 
 export type PalletValidation = {

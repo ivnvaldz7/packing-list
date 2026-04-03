@@ -1,5 +1,6 @@
 import { getCountryPreset } from '../data/countries';
 import type { Pallet, PalletItem, ShipmentDocument } from '../types';
+import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
 
 export const createId = (): string =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -8,6 +9,7 @@ export const createId = (): string =>
 
 export const createEmptyItem = (): PalletItem => ({
   id: createId(),
+  planId: createId(),
   productId: '',
   sku: '',
   description: '',
@@ -16,13 +18,14 @@ export const createEmptyItem = (): PalletItem => ({
   unit: 'Frascos',
   unitsPerBox: 0,
   weightPerBoxKg: 0,
-  quantity: 1,
+  plannedQuantity: 0,
+  quantity: 0,
 });
 
 export const createEmptyPallet = (index: number): Pallet => ({
   id: createId(),
   label: `Paleta ${index}`,
-  palletTareWeightKg: 26,
+  palletTareWeightKg: FIXED_PALLET_TARE_WEIGHT_KG,
   items: [createEmptyItem()],
 });
 
@@ -40,11 +43,31 @@ export const createInitialDocument = (): ShipmentDocument => ({
 export const duplicatePallet = (pallet: Pallet, index: number): Pallet => ({
   ...pallet,
   id: createId(),
-  label: pallet.label.trim() ? `${pallet.label} copia` : `Paleta ${index}`,
+  label: `Paleta ${index}`,
   items: pallet.items.map(
     (item): PalletItem => ({
       ...item,
       id: createId(),
+      planId: createId(),
     }),
   ),
+});
+
+const isAutomaticPalletLabel = (label: string): boolean => /^Paleta \d+$/i.test(label.trim());
+
+export const renumberAutomaticPalletLabels = (pallets: Pallet[]): Pallet[] =>
+  pallets.map((pallet, index) =>
+    isAutomaticPalletLabel(pallet.label)
+      ? {
+          ...pallet,
+          label: `Paleta ${index + 1}`,
+        }
+      : pallet,
+  );
+
+export const createSplitItem = (item: PalletItem, quantity: number): PalletItem => ({
+  ...item,
+  id: createId(),
+  productionNumber: '',
+  quantity,
 });

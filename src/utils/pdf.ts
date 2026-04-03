@@ -1,4 +1,5 @@
 import type { PalletComputed, ShipmentDocument } from '../types';
+import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
 
 const sanitizeFileName = (value: string): string =>
   value
@@ -8,6 +9,7 @@ const sanitizeFileName = (value: string): string =>
     .toLowerCase();
 
 const formatWeightCell = (value: number): string => `${value.toFixed(3)} kg`;
+const formatWholeWeightCell = (value: number): string => `${Math.round(value)} kg`;
 
 const getFileName = (document: ShipmentDocument): string => {
   const invoiceNumber = sanitizeFileName(document.header.invoiceNumber);
@@ -75,7 +77,7 @@ export const exportShipmentDocumentPdf = async (
       cursorY += 4.5;
     }
 
-    pdf.text(`Peso tarima: ${formatWeightCell(pallet.palletTareWeightKg)}`, left, cursorY);
+    pdf.text(`Peso tarima: ${formatWholeWeightCell(pallet.palletTareWeightKg || FIXED_PALLET_TARE_WEIGHT_KG)}`, left, cursorY);
     pdf.text(`Peso neto: ${formatWeightCell(pallet.totalNetWeightKg)}`, 78, cursorY);
     pdf.text(`Peso bruto: ${formatWeightCell(pallet.totalGrossWeightKg)}`, 138, cursorY);
     cursorY += 4;

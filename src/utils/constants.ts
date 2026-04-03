@@ -1,0 +1,1 @@
+export const FIXED_PALLET_TARE_WEIGHT_KG = 26;

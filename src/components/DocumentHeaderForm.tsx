@@ -13,15 +13,15 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
     <div className="panel-header">
       <div>
         <p className="eyebrow">Paso 1</p>
-        <h2>Cabecera de la lista de empaque</h2>
+        <h2>Preparacion del documento</h2>
       </div>
       <p className="panel-copy">
-        El pais aplica una configuracion fija para la cabecera. Solo quedan variables el numero
-        de factura y el tipo de transporte.
+        Esta informacion define la base de la lista de empaque antes de cargar el contenido real
+        de cada paleta.
       </p>
     </div>
 
-    <div className="grid grid-2">
+    <div className="grid grid-3">
       <InputField
         label="Factura N°"
         value={header.invoiceNumber}

@@ -25,8 +25,9 @@ export const DocumentSummary = ({
       <article className="notes-panel">
         <h3>Notas de exportacion</h3>
         <p>
-          Mercaderia registrada para preparacion de embarque. La hoja consolida paletas, cantidades,
-          lotes y pesos operativos para control documental interno.
+          El documento se completa en dos etapas: primero se prepara la estructura del embarque y
+          despues el encargado carga digitalmente los productos, lotes y cantidades reales de cada
+          paleta.
         </p>
         <div className="notes-signatures">
           <div>

@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DocumentHeaderForm } from './components/DocumentHeaderForm';
 import { DocumentSummary } from './components/DocumentSummary';
 import { LaboratoryLogo } from './components/LaboratoryLogo';
@@ -9,11 +10,24 @@ import { exportShipmentDocumentPdf } from './utils/pdf';
 import { validateShipmentDocument } from './utils/validation';
 
 const App = () => {
+  const lastPalletRef = useRef<HTMLDivElement | null>(null);
+  const previousPalletCountRef = useRef(0);
+  const [activeStage, setActiveStage] = useState<'preparacion' | 'carga'>('preparacion');
+  const [activePalletId, setActivePalletId] = useState<string | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') {
+      return 'light';
+    }
+
+    const savedTheme = window.localStorage.getItem('shipment-theme');
+    return savedTheme === 'dark' ? 'dark' : 'light';
+  });
   const {
     document,
     computedPallets,
     totals,
     products,
+    lastCreatedItemId,
     status,
     error,
     updateHeader,
@@ -27,7 +41,42 @@ const App = () => {
     updateItem,
     removeItem,
   } = useShipmentDocument();
-  const validation = validateShipmentDocument(document);
+  const validation = validateShipmentDocument(document, activeStage);
+  const activePallet = useMemo(
+    () => computedPallets.find((pallet) => pallet.id === activePalletId) ?? computedPallets[0],
+    [activePalletId, computedPallets],
+  );
+
+  useEffect(() => {
+    window.document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem('shipment-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (computedPallets.length > previousPalletCountRef.current) {
+      requestAnimationFrame(() => {
+        lastPalletRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    previousPalletCountRef.current = computedPallets.length;
+  }, [computedPallets.length]);
+
+  useEffect(() => {
+    if (!computedPallets.length) {
+      setActivePalletId(null);
+      return;
+    }
+
+    if (activePalletId === null) {
+      return;
+    }
+
+    const hasActivePallet = computedPallets.some((pallet) => pallet.id === activePalletId);
+    if (!hasActivePallet) {
+      setActivePalletId(computedPallets[0].id);
+    }
+  }, [activePalletId, computedPallets]);
 
   if (status === 'loading') {
     return <main className="loading-state">Cargando borrador local...</main>;
@@ -51,17 +100,22 @@ const App = () => {
             <p className="sidebar-copy">Institutional export manifest</p>
           </div>
           <nav className="sidebar-nav">
-            <a className="sidebar-link sidebar-link-active" href="#header-section">
-              Pallet details
-            </a>
+            <button
+              type="button"
+              className={`sidebar-link ${activeStage === 'preparacion' ? 'sidebar-link-active' : ''}`}
+              onClick={() => setActiveStage('preparacion')}
+            >
+              Preparacion
+            </button>
+            <button
+              type="button"
+              className={`sidebar-link ${activeStage === 'carga' ? 'sidebar-link-active' : ''}`}
+              onClick={() => setActiveStage('carga')}
+            >
+              Carga final
+            </button>
             <a className="sidebar-link" href="#summary-section">
-              Summary
-            </a>
-            <a className="sidebar-link" href="#header-section">
-              Shipping metadata
-            </a>
-            <a className="sidebar-link" href="#summary-section">
-              Validation
+              Resumen
             </a>
           </nav>
           <div className="sidebar-actions">
@@ -78,12 +132,63 @@ const App = () => {
             <div className="topbar-title-group">
               <strong className="topbar-title">Lista de empaque</strong>
               <nav className="topbar-nav">
-                <span>Drafts</span>
-                <span className="topbar-nav-active">Completed</span>
-                <span>Archive</span>
+                <button
+                  type="button"
+                  className={activeStage === 'preparacion' ? 'topbar-nav-link topbar-nav-active' : 'topbar-nav-link'}
+                  onClick={() => setActiveStage('preparacion')}
+                >
+                  Preparacion
+                </button>
+                <button
+                  type="button"
+                  className={activeStage === 'carga' ? 'topbar-nav-link topbar-nav-active' : 'topbar-nav-link'}
+                  onClick={() => setActiveStage('carga')}
+                >
+                  Carga final
+                </button>
+                <button
+                  type="button"
+                  className="topbar-nav-link"
+                  onClick={() => {
+                    window.document.getElementById('summary-section')?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                  }}
+                >
+                  Resumen
+                </button>
               </nav>
             </div>
             <div className="topbar-actions">
+              <button
+                type="button"
+                className="ghost-button toolbar-button theme-toggle theme-icon-button"
+                onClick={() => setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))}
+                aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
+                title={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
+              >
+                <span
+                  aria-hidden="true"
+                  className={theme === 'light' ? 'theme-glyph theme-glyph-moon' : 'theme-glyph theme-glyph-sun'}
+                />
+              </button>
+              <div className="stage-switcher">
+                <button
+                  type="button"
+                  className={activeStage === 'preparacion' ? 'stage-chip stage-chip-active' : 'stage-chip'}
+                  onClick={() => setActiveStage('preparacion')}
+                >
+                  Preparacion
+                </button>
+                <button
+                  type="button"
+                  className={activeStage === 'carga' ? 'stage-chip stage-chip-active' : 'stage-chip'}
+                  onClick={() => setActiveStage('carga')}
+                >
+                  Carga final
+                </button>
+              </div>
               <button
                 type="button"
                 className="ghost-button toolbar-button"
@@ -132,40 +237,182 @@ const App = () => {
               />
             </section>
 
-            <section className="manifest-section-heading">
-              <div>
-                <h2>Carga de paletas</h2>
-                <p>
-                  Carga operativa del embarque. Cada registro conserva SKU, lote, unidades por caja y
-                  recalculo de pesos.
-                </p>
-              </div>
-              <button type="button" className="manifest-add-button" onClick={addPallet}>
-                Anadir paleta
-              </button>
-            </section>
+            {activeStage === 'preparacion' ? (
+              <div key="preparacion" className="stage-panel">
+                <section className="manifest-section-heading">
+                  <div>
+                    <h2>Preparacion del embarque</h2>
+                    <p>
+                      En esta etapa se define la estructura del documento y los productos previstos por
+                      paleta. Los lotes y cantidades reales se completan despues.
+                    </p>
+                  </div>
+                  <button type="button" className="manifest-add-button" onClick={addPallet}>
+                    Anadir paleta
+                  </button>
+                </section>
 
-            <div className="pallet-list">
-              {computedPallets.map((pallet, index) => (
-                <PalletCard
-                  key={pallet.id}
-                  pallet={pallet}
-                  products={products}
-                  itemErrors={
-                    validation.palletErrors.find((entry) => entry.palletId === pallet.id)?.itemErrors ?? {}
-                  }
-                  index={index}
-                  canRemove={computedPallets.length > 1}
-                  onUpdatePallet={updatePallet}
-                  onRemovePallet={removePallet}
-                  onAddItem={addItem}
-                  onClonePallet={clonePallet}
-                  onSelectProduct={selectProduct}
-                  onUpdateItem={updateItem}
-                  onRemoveItem={removeItem}
-                />
-              ))}
-            </div>
+                <section className="preparation-layout">
+                  <article className="panel preparation-overview">
+                    <div className="panel-header">
+                      <div>
+                        <p className="eyebrow">Paso 2</p>
+                        <h2>Estructura del embarque</h2>
+                      </div>
+                      <p className="panel-copy">
+                        Defini la cantidad de paletas y los productos base antes de que el encargado cargue
+                        el contenido real.
+                      </p>
+                    </div>
+                    <div className="preparation-stats">
+                      <div className="preparation-stat-card">
+                        <span>Total paletas</span>
+                        <strong>{String(document.pallets.length).padStart(2, '0')}</strong>
+                      </div>
+                      <div className="preparation-stat-card">
+                        <span>Pais</span>
+                        <strong>{document.header.country}</strong>
+                      </div>
+                      <div className="preparation-stat-card">
+                        <span>Factura</span>
+                        <strong>{document.header.invoiceNumber || 'Pendiente'}</strong>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article className="panel">
+                    <div className="panel-header">
+                      <div>
+                        <p className="eyebrow">Paso 3</p>
+                        <h2>Productos previstos por paleta</h2>
+                      </div>
+                      <p className="panel-copy">
+                        Aca podes dejar armada cada paleta con sus productos previstos. Luego, en carga final,
+                        el encargado completa lotes y cantidades reales.
+                      </p>
+                    </div>
+                    <div className="pallet-list">
+                      {computedPallets.map((pallet, index) => (
+                        <div key={pallet.id} className="pallet-anchor">
+                          <PalletCard
+                            mode="preparacion"
+                            pallet={pallet}
+                            products={products}
+                            autoFocusItemId={lastCreatedItemId}
+                            itemErrors={
+                              validation.palletErrors.find((entry) => entry.palletId === pallet.id)?.itemErrors ?? {}
+                            }
+                            index={index}
+                            canRemove={computedPallets.length > 1}
+                            onUpdatePallet={updatePallet}
+                            onRemovePallet={removePallet}
+                            onAddItem={addItem}
+                            onClonePallet={clonePallet}
+                            onSelectProduct={selectProduct}
+                            onUpdateItem={updateItem}
+                            onRemoveItem={removeItem}
+                          />
+                          <div className="preparation-pallet-actions">
+                            <button
+                              type="button"
+                              className="ghost-button small-button"
+                              onClick={() => {
+                                setActiveStage('carga');
+                                setActivePalletId(pallet.id);
+                              }}
+                            >
+                              Pasar a carga final
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="manifest-bottom-actions">
+                      <button type="button" className="secondary-button" onClick={addPallet}>
+                        Anadir otra paleta
+                      </button>
+                    </div>
+                  </article>
+                </section>
+              </div>
+            ) : (
+              <div key="carga" className="stage-panel">
+                <section className="manifest-section-heading">
+                  <div>
+                    <h2>Carga final por paleta</h2>
+                    <p>
+                      Esta vista esta pensada para el encargado que conoce el contenido real final. Carga
+                      una paleta por vez con sus productos, lotes y cantidades definitivas.
+                    </p>
+                  </div>
+                  <button type="button" className="manifest-add-button" onClick={addPallet}>
+                    Anadir paleta
+                  </button>
+                </section>
+
+                <section className="panel pallet-selector-panel">
+                  <div className="panel-header">
+                    <div>
+                      <p className="eyebrow">Carga final</p>
+                      <h2>Seleccion de paleta</h2>
+                    </div>
+                    <p className="panel-copy">Toca una paleta para desplegar y editarla en el mismo bloque.</p>
+                  </div>
+                  <div className="pallet-toggle-list">
+                    {computedPallets.map((pallet, index) => {
+                      const isActive = pallet.id === activePalletId;
+
+                      return (
+                        <div
+                          key={pallet.id}
+                          ref={index === computedPallets.length - 1 ? lastPalletRef : null}
+                          className="pallet-toggle-item"
+                        >
+                          <button
+                            type="button"
+                            className={isActive ? 'pallet-nav-card pallet-nav-card-active' : 'pallet-nav-card'}
+                            onClick={() => setActivePalletId((currentId) => (currentId === pallet.id ? null : pallet.id))}
+                          >
+                            <div>
+                              <strong>{`Paleta ${index + 1}`}</strong>
+                              <span>{`${pallet.items.length} item${pallet.items.length === 1 ? '' : 's'}`}</span>
+                            </div>
+                            <span>{formatWeight(pallet.totalGrossWeightKg)}</span>
+                          </button>
+
+                          {isActive ? (
+                            <div className="pallet-toggle-editor">
+                              <PalletCard
+                                mode="carga"
+                                pallet={pallet}
+                                products={products}
+                                autoFocusItemId={lastCreatedItemId}
+                                itemErrors={
+                                  validation.palletErrors.find((entry) => entry.palletId === pallet.id)?.itemErrors ?? {}
+                                }
+                                index={index}
+                                canRemove={computedPallets.length > 1}
+                                onUpdatePallet={updatePallet}
+                                onRemovePallet={(palletId) => {
+                                  removePallet(palletId);
+                                }}
+                                onAddItem={addItem}
+                                onClonePallet={(palletId) => {
+                                  clonePallet(palletId);
+                                }}
+                                onSelectProduct={selectProduct}
+                                onUpdateItem={updateItem}
+                                onRemoveItem={removeItem}
+                              />
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              </div>
+            )}
 
             <section id="summary-section">
               <DocumentSummary
