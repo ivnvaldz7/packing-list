@@ -11,32 +11,32 @@ export const countryPresets: CountryPreset[] = [
   {
     value: 'PANAMA',
     label: 'PANAMA',
-    laboratoryName: 'Laboratorios Aurofarma',
-    address: 'PANAMA',
+    laboratoryName: 'IMPORTACIONES UNIVERSO ZONA LIBRE S.A',
+    address: 'FREE ZONE, COLON - PANAMA',
   },
   {
     value: 'COLOMBIA',
     label: 'COLOMBIA',
-    laboratoryName: 'Laboratorios Aurofarma',
-    address: 'COLOMBIA',
+    laboratoryName: 'LABORATORIOS AUROFARMA SAS',
+    address: 'KM 13 VIA OCCIDENTE FUNZA BODEGAS ITALCOL, CUNDINAMARCA-COLOMBIA',
   },
   {
     value: 'PARAGUAY',
     label: 'PARAGUAY',
-    laboratoryName: 'Laboratorios Aurofarma',
-    address: 'PARAGUAY',
+    laboratoryName: 'AGRO VETERINARIA TOTAL SRL',
+    address: 'LUIS ALBERTO HERRERA 477, ASUNCION-PARAGUAY',
   },
   {
     value: 'BOLIVIA',
     label: 'BOLIVIA',
-    laboratoryName: 'Laboratorios Aurofarma',
-    address: 'BOLIVIA',
+    laboratoryName: 'VETERQUIMICA BOLIVIANA SRL',
+    address: 'AVENIDA PIRAY 493, SANTA CRUZ DE LA SIERRA - BOLIVIA',
   },
   {
     value: 'ECUADOR',
     label: 'ECUADOR',
-    laboratoryName: 'Laboratorios Aurofarma',
-    address: 'ECUADOR',
+    laboratoryName: 'QUIMICA SUIZA INDUSTRIAL DEL ECUADOR',
+    address: 'AV. GALO PLAZA LASSO 10640 Y MANUEL ZAMBRANO, QUITO-ECUADOR',
   },
 ];
 
