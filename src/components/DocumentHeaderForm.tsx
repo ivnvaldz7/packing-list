@@ -1,6 +1,10 @@
 import type { DocumentHeader, HeaderValidation } from '../types';
 import { shipmentCountries } from '../data/countries';
-import { InputField, SelectField } from './Field';
+import { Field, InputField, SelectField } from './Field';
+
+const INVOICE_PREFIX = 'E-0005-0000';
+const getInvoiceSuffix = (value: string): string =>
+  value.startsWith(INVOICE_PREFIX) ? value.slice(INVOICE_PREFIX.length) : value.replace(/\D/g, '').slice(-4);
 
 type DocumentHeaderFormProps = {
   header: DocumentHeader;
@@ -22,13 +26,26 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
     </div>
 
     <div className="grid grid-3">
-      <InputField
-        label="Factura N°"
-        value={header.invoiceNumber}
-        error={errors.invoiceNumber}
-        onChange={(event) => onChange('invoiceNumber', event.target.value)}
-        placeholder="E-0005-00000306"
-      />
+      <Field label="Factura N°" error={errors.invoiceNumber}>
+        <div className="invoice-field">
+          <span className="invoice-prefix">{INVOICE_PREFIX}</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={4}
+            value={getInvoiceSuffix(header.invoiceNumber)}
+            onChange={(event) =>
+              onChange(
+                'invoiceNumber',
+                `${INVOICE_PREFIX}${event.target.value.replace(/\D/g, '').slice(0, 4)}` as DocumentHeader['invoiceNumber'],
+              )
+            }
+            placeholder="0005"
+            aria-invalid={Boolean(errors.invoiceNumber)}
+            className="invoice-suffix-input"
+          />
+        </div>
+      </Field>
       <SelectField
         label="Pais"
         value={header.country}

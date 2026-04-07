@@ -2,6 +2,8 @@ import { getCountryPreset } from '../data/countries';
 import type { Pallet, PalletItem, ShipmentDocument } from '../types';
 import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
 
+const DEFAULT_INVOICE_PREFIX = 'E-0005-0000';
+
 export const createId = (): string =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
@@ -33,7 +35,7 @@ export const createInitialDocument = (): ShipmentDocument => ({
   id: 'draft-export-pallets',
   header: {
     ...getCountryPreset('PANAMA'),
-    invoiceNumber: '',
+    invoiceNumber: DEFAULT_INVOICE_PREFIX,
     transportType: 'Maritimo',
   },
   pallets: [createEmptyPallet(1)],

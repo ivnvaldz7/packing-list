@@ -9,12 +9,15 @@ import type {
 } from '../types';
 
 const isBlank = (value: string): boolean => value.trim().length === 0;
+const INVOICE_PREFIX = 'E-0005-0000';
+const hasCompleteInvoiceSuffix = (value: string): boolean =>
+  value.startsWith(INVOICE_PREFIX) && /^\d{4}$/.test(value.slice(INVOICE_PREFIX.length));
 
 const validateHeader = (header: DocumentHeader): HeaderValidation => {
   const errors: HeaderValidation = {};
 
-  if (isBlank(header.invoiceNumber)) {
-    errors.invoiceNumber = 'Completá el numero de factura.';
+  if (!hasCompleteInvoiceSuffix(header.invoiceNumber)) {
+    errors.invoiceNumber = 'Completá los ultimos 4 digitos.';
   }
   if (isBlank(header.country)) {
     errors.country = 'Seleccioná el pais.';
