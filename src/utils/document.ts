@@ -1,5 +1,12 @@
 import { getCountryPreset } from '../data/countries';
-import type { DocumentHeader, Pallet, PalletItem, ProductUnit, ShipmentDocument } from '../types';
+import type {
+  DocumentHeader,
+  Pallet,
+  PalletItem,
+  ProductUnit,
+  ShipmentDocument,
+  ShipmentWorkflowStatus,
+} from '../types';
 import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
 
 const DEFAULT_UNIT: ProductUnit = 'Frascos';
@@ -58,6 +65,9 @@ const normalizeHeader = (header?: Partial<DocumentHeader> & Record<string, unkno
       : 'Maritimo',
 });
 
+const normalizeWorkflowStatus = (value: unknown): ShipmentWorkflowStatus =>
+  value === 'carga' || value === 'finalizada' || value === 'preparacion' ? value : 'preparacion';
+
 export const normalizeShipmentDocument = (document: ShipmentDocument): ShipmentDocument => ({
   ...document,
   header: normalizeHeader(document.header as Partial<DocumentHeader> & Record<string, unknown>),
@@ -65,4 +75,5 @@ export const normalizeShipmentDocument = (document: ShipmentDocument): ShipmentD
     document.pallets.length > 0
       ? document.pallets.map((pallet) => normalizePallet(pallet))
       : [normalizePallet({ label: 'Paleta 1' })],
+  workflowStatus: normalizeWorkflowStatus((document as ShipmentDocument & Record<string, unknown>).workflowStatus),
 });

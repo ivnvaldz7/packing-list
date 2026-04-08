@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { DocumentLibrary } from './components/DocumentLibrary';
 import { DocumentHeaderForm } from './components/DocumentHeaderForm';
 import { DocumentSummary } from './components/DocumentSummary';
 import { LaboratoryLogo } from './components/LaboratoryLogo';
@@ -14,6 +15,7 @@ const App = () => {
   const previousPalletCountRef = useRef(0);
   const [activeStage, setActiveStage] = useState<'preparacion' | 'carga'>('preparacion');
   const [activePalletId, setActivePalletId] = useState<string | null>(null);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') {
       return 'light';
@@ -24,6 +26,7 @@ const App = () => {
   });
   const {
     document,
+    documentLibrary,
     computedPallets,
     totals,
     products,
@@ -31,22 +34,20 @@ const App = () => {
     status,
     error,
     updateHeader,
+    updateWorkflowStatus,
+    createNewDocument,
+    openStoredDocument,
+    deleteStoredDocument,
     addPallet,
     updatePallet,
     removePallet,
     addItem,
     clonePallet,
-    resetDocument,
     selectProduct,
     updateItem,
     removeItem,
   } = useShipmentDocument();
   const validation = validateShipmentDocument(document, activeStage);
-  const activePallet = useMemo(
-    () => computedPallets.find((pallet) => pallet.id === activePalletId) ?? computedPallets[0],
-    [activePalletId, computedPallets],
-  );
-
   useEffect(() => {
     window.document.documentElement.dataset.theme = theme;
     window.localStorage.setItem('shipment-theme', theme);
@@ -78,6 +79,20 @@ const App = () => {
     }
   }, [activePalletId, computedPallets]);
 
+  useEffect(() => {
+    if (document.workflowStatus === 'carga' || document.workflowStatus === 'finalizada') {
+      setActiveStage('carga');
+      return;
+    }
+
+    setActiveStage('preparacion');
+  }, [document.id, document.workflowStatus]);
+
+  const handleStageChange = (nextStage: 'preparacion' | 'carga') => {
+    setActiveStage(nextStage);
+    updateWorkflowStatus(nextStage);
+  };
+
   if (status === 'loading') {
     return <main className="loading-state">Cargando borrador local...</main>;
   }
@@ -90,6 +105,22 @@ const App = () => {
         totalNetWeightKg={totals.totalNetWeightKg}
         totalGrossWeightKg={totals.totalGrossWeightKg}
       />
+      {isLibraryOpen ? (
+        <DocumentLibrary
+          documents={documentLibrary}
+          activeDocumentId={document.id}
+          onClose={() => setIsLibraryOpen(false)}
+          onCreate={() => {
+            createNewDocument();
+            setIsLibraryOpen(false);
+          }}
+          onOpen={(documentId) => {
+            void openStoredDocument(documentId);
+            setIsLibraryOpen(false);
+          }}
+          onDelete={(documentId) => void deleteStoredDocument(documentId)}
+        />
+      ) : null}
       <main className="workspace screen-only">
         <aside className="workspace-sidebar">
           <div className="sidebar-brand">
@@ -103,14 +134,14 @@ const App = () => {
             <button
               type="button"
               className={`sidebar-link ${activeStage === 'preparacion' ? 'sidebar-link-active' : ''}`}
-              onClick={() => setActiveStage('preparacion')}
+              onClick={() => handleStageChange('preparacion')}
             >
               Preparacion
             </button>
             <button
               type="button"
               className={`sidebar-link ${activeStage === 'carga' ? 'sidebar-link-active' : ''}`}
-              onClick={() => setActiveStage('carga')}
+              onClick={() => handleStageChange('carga')}
             >
               Carga final
             </button>
@@ -119,11 +150,18 @@ const App = () => {
             </a>
           </nav>
           <div className="sidebar-actions">
-            <button type="button" className="primary-button sidebar-primary" onClick={() => window.print()}>
-              Finalize shipment
+            <button
+              type="button"
+              className="primary-button sidebar-primary"
+              onClick={() => {
+                updateWorkflowStatus('finalizada');
+                window.print();
+              }}
+            >
+              Finalizar lista
             </button>
-            <p className="sidebar-footnote">Weight logs</p>
-            <p className="sidebar-footnote">Audit trail</p>
+            <p className="sidebar-footnote">{document.workflowStatus === 'finalizada' ? 'Lista cerrada' : 'Lista activa'}</p>
+            <p className="sidebar-footnote">{document.header.invoiceNumber || 'Sin factura'}</p>
           </div>
         </aside>
 
@@ -135,14 +173,14 @@ const App = () => {
                 <button
                   type="button"
                   className={activeStage === 'preparacion' ? 'topbar-nav-link topbar-nav-active' : 'topbar-nav-link'}
-                  onClick={() => setActiveStage('preparacion')}
+                  onClick={() => handleStageChange('preparacion')}
                 >
                   Preparacion
                 </button>
                 <button
                   type="button"
                   className={activeStage === 'carga' ? 'topbar-nav-link topbar-nav-active' : 'topbar-nav-link'}
-                  onClick={() => setActiveStage('carga')}
+                  onClick={() => handleStageChange('carga')}
                 >
                   Carga final
                 </button>
@@ -177,14 +215,14 @@ const App = () => {
                 <button
                   type="button"
                   className={activeStage === 'preparacion' ? 'stage-chip stage-chip-active' : 'stage-chip'}
-                  onClick={() => setActiveStage('preparacion')}
+                  onClick={() => handleStageChange('preparacion')}
                 >
                   Preparacion
                 </button>
                 <button
                   type="button"
                   className={activeStage === 'carga' ? 'stage-chip stage-chip-active' : 'stage-chip'}
-                  onClick={() => setActiveStage('carga')}
+                  onClick={() => handleStageChange('carga')}
                 >
                   Carga final
                 </button>
@@ -192,15 +230,29 @@ const App = () => {
               <button
                 type="button"
                 className="ghost-button toolbar-button"
+                onClick={() => setIsLibraryOpen(true)}
+              >
+                Listas
+              </button>
+              <button
+                type="button"
+                className="ghost-button toolbar-button"
                 onClick={() => void exportShipmentDocumentPdf(document, computedPallets, totals)}
               >
                 Print PDF
               </button>
-              <button type="button" className="ghost-button toolbar-button" onClick={() => void resetDocument()}>
-                Reset
+              <button type="button" className="ghost-button toolbar-button" onClick={createNewDocument}>
+                Nueva lista
               </button>
-              <button type="button" className="primary-button toolbar-primary" onClick={() => window.print()}>
-                Finalize
+              <button
+                type="button"
+                className="primary-button toolbar-primary"
+                onClick={() => {
+                  updateWorkflowStatus('finalizada');
+                  window.print();
+                }}
+              >
+                Finalizar
               </button>
             </div>
           </header>
@@ -223,6 +275,13 @@ const App = () => {
                 <div className="document-code-box">
                   <span>Document no.</span>
                   <strong>{document.header.invoiceNumber || 'Sin factura'}</strong>
+                  <small className="document-status-inline">
+                    {document.workflowStatus === 'preparacion'
+                      ? 'Preparacion'
+                      : document.workflowStatus === 'carga'
+                        ? 'En carga final'
+                        : 'Finalizada'}
+                  </small>
                 </div>
               </div>
             </section>
@@ -317,7 +376,7 @@ const App = () => {
                               type="button"
                               className="ghost-button small-button"
                               onClick={() => {
-                                setActiveStage('carga');
+                                handleStageChange('carga');
                                 setActivePalletId(pallet.id);
                               }}
                             >

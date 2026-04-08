@@ -19,6 +19,12 @@ export const DocumentSummary = ({
     (sum, pallet) => sum + pallet.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
     0,
   );
+  const workflowLabel =
+    document.workflowStatus === 'preparacion'
+      ? 'En preparacion'
+      : document.workflowStatus === 'carga'
+        ? 'En carga final'
+        : 'Finalizada';
 
   return (
     <section className="summary-layout">
@@ -64,10 +70,14 @@ export const DocumentSummary = ({
           <strong>{formatWeight(totalGrossWeightKg)}</strong>
         </div>
         <div className="manifest-status-row">
-          <span>Estado</span>
+          <span>Validacion</span>
           <strong className={`manifest-status-chip ${isValid ? 'manifest-status-valid' : 'manifest-status-warning'}`}>
             {isValid ? 'Borrador validado' : 'Revision pendiente'}
           </strong>
+        </div>
+        <div className="manifest-status-row">
+          <span>Flujo</span>
+          <strong className="manifest-status-chip manifest-status-neutral">{workflowLabel}</strong>
         </div>
       </article>
     </section>

@@ -32,13 +32,14 @@ export const createEmptyPallet = (index: number): Pallet => ({
 });
 
 export const createInitialDocument = (): ShipmentDocument => ({
-  id: 'draft-export-pallets',
+  id: createId(),
   header: {
     ...getCountryPreset('PANAMA'),
     invoiceNumber: DEFAULT_INVOICE_PREFIX,
     transportType: 'Maritimo',
   },
   pallets: [createEmptyPallet(1)],
+  workflowStatus: 'preparacion',
   updatedAt: new Date().toISOString(),
 });
 

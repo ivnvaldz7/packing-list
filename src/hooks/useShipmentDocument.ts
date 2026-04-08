@@ -1,8 +1,24 @@
-import { getCountryPreset } from '../data/countries';
 import { useEffect, useMemo, useState } from 'react';
+import { getCountryPreset } from '../data/countries';
 import { productCatalog } from '../data/products';
-import { clearDocument, loadDocument, saveDocument } from '../db/indexedDb';
-import type { DocumentHeader, Pallet, PalletItem, ShipmentDocument } from '../types';
+import {
+  deleteDocument,
+  getActiveDocumentId,
+  loadDocument,
+  loadDocuments,
+  saveDocument,
+  setActiveDocumentId,
+} from '../db/indexedDb';
+import type {
+  DocumentHeader,
+  Pallet,
+  PalletItem,
+  ShipmentDocument,
+  ShipmentWorkflowStatus,
+  StoredDocumentSummary,
+} from '../types';
+import { calculateComputedPallet, calculateDocumentTotals } from '../utils/calculations';
+import { normalizeShipmentDocument } from '../utils/document';
 import {
   createEmptyItem,
   createEmptyPallet,
@@ -11,8 +27,6 @@ import {
   duplicatePallet,
   renumberAutomaticPalletLabels,
 } from '../utils/factories';
-import { calculateComputedPallet, calculateDocumentTotals } from '../utils/calculations';
-import { normalizeShipmentDocument } from '../utils/document';
 
 type LoadStatus = 'loading' | 'ready' | 'error';
 
@@ -21,30 +35,70 @@ const touch = (document: ShipmentDocument): ShipmentDocument => ({
   updatedAt: new Date().toISOString(),
 });
 
+const summarizeDocument = (document: ShipmentDocument): StoredDocumentSummary => ({
+  id: document.id,
+  invoiceNumber: document.header.invoiceNumber,
+  country: document.header.country,
+  laboratoryName: document.header.laboratoryName,
+  address: document.header.address,
+  transportType: document.header.transportType,
+  workflowStatus: document.workflowStatus,
+  updatedAt: document.updatedAt,
+  palletCount: document.pallets.length,
+});
+
+const sortByUpdatedAt = (documents: ShipmentDocument[]): ShipmentDocument[] =>
+  [...documents].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+
 export const useShipmentDocument = () => {
   const [document, setDocument] = useState<ShipmentDocument>(createInitialDocument);
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [error, setError] = useState<string | null>(null);
   const [lastCreatedItemId, setLastCreatedItemId] = useState<string | null>(null);
+  const [library, setLibrary] = useState<StoredDocumentSummary[]>([]);
 
   useEffect(() => {
     let mounted = true;
 
     const bootstrap = async (): Promise<void> => {
       try {
-        const stored = await loadDocument();
+        const storedDocuments = sortByUpdatedAt(
+          (await loadDocuments()).map((storedDocument) => normalizeShipmentDocument(storedDocument)),
+        );
+
         if (!mounted) {
           return;
         }
 
-        setDocument(stored ? normalizeShipmentDocument(stored) : createInitialDocument());
+        if (storedDocuments.length === 0) {
+          const initialDocument = createInitialDocument();
+          await saveDocument(initialDocument);
+          await setActiveDocumentId(initialDocument.id);
+
+          if (!mounted) {
+            return;
+          }
+
+          setDocument(initialDocument);
+          setLibrary([summarizeDocument(initialDocument)]);
+          setStatus('ready');
+          return;
+        }
+
+        const activeDocumentId = await getActiveDocumentId();
+        const nextDocument =
+          storedDocuments.find((storedDocument) => storedDocument.id === activeDocumentId) ??
+          storedDocuments[0];
+
+        setDocument(nextDocument);
+        setLibrary(storedDocuments.map(summarizeDocument));
         setStatus('ready');
       } catch (loadError) {
         if (!mounted) {
           return;
         }
 
-        setError('No pudimos recuperar el borrador guardado.');
+        setError('No pudimos recuperar las listas guardadas.');
         setStatus('error');
         console.error(loadError);
       }
@@ -62,10 +116,22 @@ export const useShipmentDocument = () => {
       return;
     }
 
-    void saveDocument(document).catch((saveError: unknown) => {
-      setError('No pudimos guardar los cambios en IndexedDB.');
-      console.error(saveError);
-    });
+    void saveDocument(document)
+      .then(() => setActiveDocumentId(document.id))
+      .then(() =>
+        setLibrary((currentLibrary) => {
+          const nextSummary = summarizeDocument(document);
+          const nextLibrary = currentLibrary.some((entry) => entry.id === document.id)
+            ? currentLibrary.map((entry) => (entry.id === document.id ? nextSummary : entry))
+            : [nextSummary, ...currentLibrary];
+
+          return [...nextLibrary].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+        }),
+      )
+      .catch((saveError: unknown) => {
+        setError('No pudimos guardar los cambios en IndexedDB.');
+        console.error(saveError);
+      });
   }, [document, status]);
 
   const updateHeader = <K extends keyof DocumentHeader>(field: K, value: DocumentHeader[K]): void => {
@@ -92,6 +158,62 @@ export const useShipmentDocument = () => {
     });
   };
 
+  const updateWorkflowStatus = (workflowStatus: ShipmentWorkflowStatus): void => {
+    setDocument((current) => touch({ ...current, workflowStatus }));
+  };
+
+  const createNewDocument = (): void => {
+    const nextDocument = createInitialDocument();
+    setDocument(nextDocument);
+    setLastCreatedItemId(null);
+    setError(null);
+  };
+
+  const openStoredDocument = async (documentId: string): Promise<void> => {
+    try {
+      const storedDocument = await loadDocument(documentId);
+      if (!storedDocument) {
+        setError('No encontramos la lista seleccionada.');
+        return;
+      }
+
+      setDocument(normalizeShipmentDocument(storedDocument));
+      setLastCreatedItemId(null);
+      setError(null);
+    } catch (loadError) {
+      setError('No pudimos abrir la lista seleccionada.');
+      console.error(loadError);
+    }
+  };
+
+  const deleteStoredDocument = async (documentId: string): Promise<void> => {
+    try {
+      await deleteDocument(documentId);
+
+      setLibrary((currentLibrary) => currentLibrary.filter((entry) => entry.id !== documentId));
+
+      if (document.id !== documentId) {
+        return;
+      }
+
+      const remainingDocuments = sortByUpdatedAt(
+        (await loadDocuments()).map((storedDocument) => normalizeShipmentDocument(storedDocument)),
+      );
+
+      const nextDocument = remainingDocuments[0] ?? createInitialDocument();
+
+      if (remainingDocuments.length === 0) {
+        await saveDocument(nextDocument);
+      }
+
+      setDocument(nextDocument);
+      setLastCreatedItemId(null);
+    } catch (deleteError) {
+      setError('No pudimos eliminar la lista seleccionada.');
+      console.error(deleteError);
+    }
+  };
+
   const addPallet = (): void => {
     setDocument((current) =>
       touch({
@@ -104,11 +226,7 @@ export const useShipmentDocument = () => {
     );
   };
 
-  const updatePallet = <K extends keyof Pallet>(
-    palletId: string,
-    field: K,
-    value: Pallet[K],
-  ): void => {
+  const updatePallet = <K extends keyof Pallet>(palletId: string, field: K, value: Pallet[K]): void => {
     setDocument((current) =>
       touch({
         ...current,
@@ -173,7 +291,11 @@ export const useShipmentDocument = () => {
               return accumulator;
             }, {});
 
-            let incompleteSummary: { plannedQuantity: number; actualQuantity: number; lastItem: PalletItem } | null = null;
+            let incompleteSummary: {
+              plannedQuantity: number;
+              actualQuantity: number;
+              lastItem: PalletItem;
+            } | null = null;
 
             for (let index = pallet.items.length - 1; index >= 0; index -= 1) {
               const item = pallet.items[index];
@@ -322,27 +444,12 @@ export const useShipmentDocument = () => {
     );
   };
 
-  const computedPallets = useMemo(
-    () => document.pallets.map(calculateComputedPallet),
-    [document.pallets],
-  );
+  const computedPallets = useMemo(() => document.pallets.map(calculateComputedPallet), [document.pallets]);
   const totals = useMemo(() => calculateDocumentTotals(document.pallets), [document.pallets]);
-
-  const resetDocument = async (): Promise<void> => {
-    const nextDocument = createInitialDocument();
-
-    try {
-      await clearDocument();
-      setDocument(nextDocument);
-      setError(null);
-    } catch (resetError) {
-      setError('No pudimos reiniciar el borrador local.');
-      console.error(resetError);
-    }
-  };
 
   return {
     document,
+    documentLibrary: library,
     computedPallets,
     totals,
     products: productCatalog,
@@ -350,12 +457,15 @@ export const useShipmentDocument = () => {
     status,
     error,
     updateHeader,
+    updateWorkflowStatus,
+    createNewDocument,
+    openStoredDocument,
+    deleteStoredDocument,
     addPallet,
     updatePallet,
     removePallet,
     addItem,
     clonePallet,
-    resetDocument,
     selectProduct,
     updateItem,
     removeItem,

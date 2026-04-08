@@ -1,4 +1,5 @@
 export type ShipmentCountry = 'PANAMA' | 'COLOMBIA' | 'PARAGUAY' | 'BOLIVIA' | 'ECUADOR';
+export type ShipmentWorkflowStatus = 'preparacion' | 'carga' | 'finalizada';
 
 export type DocumentHeader = {
   laboratoryName: string;
@@ -47,7 +48,20 @@ export type ShipmentDocument = {
   id: string;
   header: DocumentHeader;
   pallets: Pallet[];
+  workflowStatus: ShipmentWorkflowStatus;
   updatedAt: string;
+};
+
+export type StoredDocumentSummary = {
+  id: string;
+  invoiceNumber: string;
+  country: ShipmentCountry;
+  laboratoryName: string;
+  address: string;
+  transportType: DocumentHeader['transportType'];
+  workflowStatus: ShipmentWorkflowStatus;
+  updatedAt: string;
+  palletCount: number;
 };
 
 export type HeaderValidation = Partial<Record<keyof DocumentHeader, string>>;
