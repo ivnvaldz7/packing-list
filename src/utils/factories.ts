@@ -34,7 +34,9 @@ export const createEmptyPallet = (index: number): Pallet => ({
 export const createInitialDocument = (): ShipmentDocument => ({
   id: createId(),
   header: {
-    ...getCountryPreset('PANAMA'),
+    country: '',
+    laboratoryName: '',
+    address: '',
     invoiceNumber: DEFAULT_INVOICE_PREFIX,
     transportType: 'Maritimo',
   },
@@ -71,6 +73,8 @@ export const renumberAutomaticPalletLabels = (pallets: Pallet[]): Pallet[] =>
 export const createSplitItem = (item: PalletItem, quantity: number): PalletItem => ({
   ...item,
   id: createId(),
-  productionNumber: '',
+  planId: createId(),
+  productionNumber: item.productionNumber,
+  plannedQuantity: quantity,
   quantity,
 });

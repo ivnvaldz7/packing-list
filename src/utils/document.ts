@@ -43,13 +43,7 @@ const normalizePallet = (pallet: Partial<Pallet>): Pallet => ({
 
 const normalizeHeader = (header?: Partial<DocumentHeader> & Record<string, unknown>): DocumentHeader => ({
   ...getCountryPreset(
-    header?.country === 'PANAMA' ||
-      header?.country === 'COLOMBIA' ||
-      header?.country === 'PARAGUAY' ||
-      header?.country === 'BOLIVIA' ||
-      header?.country === 'ECUADOR'
-      ? header.country
-      : 'PANAMA',
+    typeof header?.country === 'string' ? header.country : 'PANAMA',
   ),
   invoiceNumber:
     typeof header?.invoiceNumber === 'string'

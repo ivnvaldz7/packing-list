@@ -21,65 +21,84 @@ export const DocumentSummary = ({
   );
   const workflowLabel =
     document.workflowStatus === 'preparacion'
-      ? 'En preparacion'
+      ? 'En preparación'
       : document.workflowStatus === 'carga'
         ? 'En carga final'
         : 'Finalizada';
 
   return (
-    <section className="summary-layout">
-      <article className="notes-panel">
-        <h3>Notas de exportacion</h3>
-        <p>
+    <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {/* ─── Notes ─── */}
+      <article className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-700 dark:bg-stone-900">
+        <h3 className="mb-3 text-base font-semibold text-stone-800 dark:text-stone-100">
+          Notas de exportación
+        </h3>
+        <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-400">
           El documento se completa en dos etapas: primero se prepara la estructura del embarque y
-          despues el encargado carga digitalmente los productos, lotes y cantidades reales de cada
+          después el encargado carga digitalmente los productos, lotes y cantidades reales de cada
           paleta.
         </p>
-        <div className="notes-signatures">
+        <div className="mt-8 space-y-6">
           <div>
-            <span />
-            <p>Firma responsable logistica</p>
+            <div className="mb-1.5 h-px w-48 bg-stone-300 dark:bg-stone-600" />
+            <p className="text-xs text-stone-400">Firma responsable logística</p>
           </div>
           <div>
-            <span />
-            <p>Sello institucional Ale-Bet</p>
+            <div className="mb-1.5 h-px w-48 bg-stone-300 dark:bg-stone-600" />
+            <p className="text-xs text-stone-400">Sello institucional Ale-Bet</p>
           </div>
         </div>
       </article>
 
-      <article className="manifest-summary-card">
-        <h3>Resumen consolidado de carga</h3>
-        <div className="manifest-summary-row">
-          <span>Total paletas</span>
-          <strong>{String(document.pallets.length).padStart(2, '0')}</strong>
-        </div>
-        <div className="manifest-summary-row">
-          <span>Items cargados</span>
-          <strong>{String(totalItems).padStart(2, '0')}</strong>
-        </div>
-        <div className="manifest-summary-row">
-          <span>Total unidades</span>
-          <strong>{totalUnits}</strong>
-        </div>
-        <div className="manifest-summary-row">
-          <span>Peso neto total</span>
-          <strong>{formatWeight(totalNetWeightKg)}</strong>
-        </div>
-        <div className="manifest-summary-row">
-          <span>Peso bruto estimado</span>
-          <strong>{formatWeight(totalGrossWeightKg)}</strong>
-        </div>
-        <div className="manifest-status-row">
-          <span>Validacion</span>
-          <strong className={`manifest-status-chip ${isValid ? 'manifest-status-valid' : 'manifest-status-warning'}`}>
-            {isValid ? 'Borrador validado' : 'Revision pendiente'}
-          </strong>
-        </div>
-        <div className="manifest-status-row">
-          <span>Flujo</span>
-          <strong className="manifest-status-chip manifest-status-neutral">{workflowLabel}</strong>
+      {/* ─── Summary card ─── */}
+      <article className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-700 dark:bg-stone-900">
+        <h3 className="mb-4 text-base font-semibold text-stone-800 dark:text-stone-100">
+          Resumen consolidado de carga
+        </h3>
+        <div className="space-y-3">
+          <SummaryRow label="Total paletas" value={String(document.pallets.length).padStart(2, '0')} />
+          <SummaryRow label="Items cargados" value={String(totalItems).padStart(2, '0')} />
+          <SummaryRow label="Total unidades" value={String(totalUnits)} />
+          <SummaryRow label="Peso neto total" value={formatWeight(totalNetWeightKg)} />
+          <SummaryRow label="Peso bruto estimado" value={formatWeight(totalGrossWeightKg)} />
+
+          <div className="border-t border-stone-100 pt-3 dark:border-stone-800" />
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-stone-500 dark:text-stone-400">Validación</span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                isValid
+                  ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:ring-emerald-800'
+                  : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:ring-amber-800'
+              }`}
+            >
+              {isValid ? 'Borrador validado' : 'Revisión pendiente'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-stone-500 dark:text-stone-400">Flujo</span>
+            <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600 ring-1 ring-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:ring-stone-700">
+              {workflowLabel}
+            </span>
+          </div>
         </div>
       </article>
     </section>
   );
 };
+
+/* ─── Summary row helper ─── */
+
+type SummaryRowProps = {
+  label: string;
+  value: string;
+};
+
+const SummaryRow = ({ label, value }: SummaryRowProps) => (
+  <div className="flex items-center justify-between border-b border-stone-100 pb-2 dark:border-stone-800">
+    <span className="text-sm text-stone-500 dark:text-stone-400">{label}</span>
+    <strong className="font-mono text-sm font-semibold text-stone-800 dark:text-stone-100">{value}</strong>
+  </div>
+);

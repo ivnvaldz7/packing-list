@@ -26,6 +26,7 @@ import {
   createSplitItem,
   duplicatePallet,
   renumberAutomaticPalletLabels,
+  createId,
 } from '../utils/factories';
 
 type LoadStatus = 'loading' | 'ready' | 'error';
@@ -416,6 +417,7 @@ export const useShipmentDocument = () => {
                         unitsPerBox: selectedProduct.unitsPerBox,
                         weightPerBoxKg: selectedProduct.weightPerBoxKg,
                         plannedQuantity: item.quantity,
+                        planId: createId(),
                       }
                     : item,
                 ),

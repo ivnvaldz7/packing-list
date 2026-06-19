@@ -1,131 +1,53 @@
-# Design notes
+# Diseño del Sistema - Lista de Empaque (Packing List)
 
-## Herramienta de diseno
+## Propósito y Contexto
 
-Este documento queda preparado para trabajar el diseno de pantallas y flujos. Si usamos Stitch en la etapa visual, este archivo debe ser la fuente de verdad de:
+Este sistema de Packing List offline-first está diseñado para **Laboratorios Ale-Bet SRL**. Permite al personal de depósito gestionar la preparación, validación, pesado y carga de mercadería de exportación en pallets (tarimas).
 
-- flujos
-- pantallas
-- estados
-- reglas UX
+## Principios UX/UI
 
-## Principios UX
+- **Depósito Primero**: Interfaz clara, de alto contraste, legible en ambientes industriales y adaptable a modo oscuro.
+- **Validación Fuerte e Inmediata**: Los errores de carga (diferencias entre cantidades planificadas y cargadas, lotes faltantes, etc.) se muestran en tiempo real y bloquean de forma activa la finalización del documento.
+- **Offline-First Absoluto**: Toda la operación se realiza y se persiste de manera local en el navegador mediante **IndexedDB**, garantizando inmunidad ante cortes de internet.
+- **Precisión en Balanza**: Se calculan de forma automática los subtotales netos, pesos brutos y pesos de tarimas (tara editable) para evitar diferencias de aduana.
 
-- mostrador primero: pocas acciones, lectura rapida, foco en teclado y scanner
-- tocar lo menos posible: optimizar busqueda, cobro y ajustes
-- errores visibles: conflictos de stock, sin conexion y datos incompletos deben verse claro
-- mobile companion: el celular acompana, pero no define el flujo principal
+## Flujos Clave del Sistema
 
-## Pantallas del MVP
+### 1. Impresión de Carteles (Etiquetas de Pallets)
+- **Objetivo**: Generar rótulos identificatorios de exportación para pegar en cada paleta física antes de iniciar la carga.
+- **UX**: Formato horizontal (Landscape) A4 optimizado para lectura rápida de datos de remitente, destinatario y número de paleta.
+- **Aislamiento de Impresión**: Mediante estilos de medios físicos `@media print` controlados con clases dinámicas (`printing-labels-only`), se aíslan los carteles para evitar la impresión mezclada con el manifiesto.
 
-### 1. Login simple
+### 2. Etapa de Preparación
+- **Objetivo**: Configurar los productos planeados para cada paleta y especificar las cantidades estimadas de frascos.
+- **Cálculo Automático**: A partir de la base de datos de productos (Frascos por caja, peso unitario, peso por caja), el sistema calcula el peso estimado.
+- **Validación**: Comprobación de que cada fila tiene un producto seleccionado y cantidades válidas.
 
-- una sola cuenta operativa
-- acceso rapido
+### 3. Etapa de Carga Final
+- **Objetivo**: Registrar los números de lote reales asignados a cada paleta física en el camión y validar las cantidades reales.
+- **Copiado Inteligente**: Permite duplicar estructuras de paletas completas para agilizar cargas repetitivas.
+- **Decoupling de Split Lines**: Al asignar un producto a una nueva línea de pallet (incluso derivada de un split), se genera un identificador único `planId` para evitar errores de validación persistentes.
+- **Control de Frascos**: Permite re-evaluar cajas y unidades reales, recalculando el peso bruto real de la paleta sumando el peso de tara ingresado.
 
-### 2. Dashboard
+## Pantallas y Secciones Principales
 
-- ventas del dia
-- caja actual
-- alertas de stock bajo
-- accesos rapidos
+### 1. Barra Lateral (Sidebar)
+- Selección y navegación rápida entre etapas de carga.
+- Estado del flujo de trabajo (`workflowStatus`: 'preparacion', 'carga', 'finalizada').
+- Control de bloqueo dinámico: Botón "Finalizar lista" deshabilitado si existen errores en el documento.
 
-### 3. Punto de venta
+### 2. Encabezado del Manifiesto
+- Información obligatoria de exportación: Nombre del laboratorio, factura N°, país de destino (requiere selección activa forzada con placeholder vacío), dirección y tipo de transporte.
 
-- input principal con foco permanente
-- lectura desde scanner
-- busqueda manual por nombre
-- carrito actual
-- total
-- confirmar venta
-- descuento automatico de stock al confirmar
-- si el codigo no existe, alta rapida en contexto
+### 3. Tarjetas de Pallet (`PalletCard`)
+- Edición interactiva de nombre interno de la paleta y peso de tara de tarima.
+- Tabla reactiva de items de acuerdo a la etapa actual (Preparación: Producto y Frascos / Cajas; Carga final: Producto, Prefijo lote, N° lote editable, Frascos cargados y Cajas autocalculadas).
+- Resumen de pesos de la paleta (Neto, Bruto, Tara).
 
-### 4. Catalogo
+### 4. Generación de PDF
+- Layout A4 Portrait de alta definición con un ancho de tabla exactamente reescalado a **182mm** (ajustado a márgenes de 14mm izquierdo/derecho) para evitar desbordes en papel y asegurar la perfecta legibilidad del manifiesto comercial de exportación.
 
-- listado de productos
-- alta rapida
-- edicion de precio, stock y categoria
-- alta contextual desde codigo escaneado no registrado
+## Persistencia y Almacenamiento
 
-### 5. Ajuste de stock
-
-- entrada por scanner o busqueda
-- sumar o restar stock
-- motivo del ajuste
-
-### 6. Caja
-
-- apertura
-- cierre
-- ingresos
-- egresos
-- historial
-
-### 7. Reportes
-
-- ventas por periodo
-- productos mas vendidos
-- stock critico
-- movimientos de caja
-
-## Flujos clave
-
-### Flujo de venta
-
-1. operador abre POS
-2. scanner lee codigo o se busca producto
-3. si el producto existe, el sistema agrega item al carrito
-4. si el producto no existe, el sistema abre alta rapida con codigo precargado
-5. operador completa nombre y precio
-6. el sistema guarda el producto y lo agrega al carrito
-7. operador confirma medios y total
-8. sistema registra venta y descuenta stock
-
-### Flujo de alta rapida por scanner
-
-1. operador escanea codigo no registrado
-2. sistema abre alta rapida
-3. deja el codigo precargado
-4. operador completa nombre y precio
-5. sistema guarda la ficha base del producto
-6. sistema lo deja disponible para venta y stock
-
-### Flujo de ajuste con scanner
-
-1. operador abre ajuste rapido
-2. scanner lee producto
-3. sistema encuentra item
-4. operador elige sumar o restar
-5. sistema guarda movimiento y actualiza stock
-
-### Flujo offline prudente
-
-1. sistema detecta sin conexion
-2. muestra modo local
-3. permite registrar operaciones locales
-4. marca cola de sincronizacion pendiente
-5. al volver internet, sincroniza y reporta resultado
-
-## Estados criticos
-
-- sin conexion
-- sincronizando
-- conflicto de stock
-- codigo no encontrado
-- producto manual sin completar
-- venta guardada localmente
-
-## Reglas UI para scanner USB
-
-- el campo de captura debe poder mantener foco
-- enter final del scanner debe disparar busqueda o agregado
-- si el codigo no existe, abrir alta rapida o sugerir ajuste manual
-- el alta rapida debe pedir pocos campos para no frenar la atencion
-- despues de guardar, el foco debe volver al input principal
-
-## Criterio responsive
-
-- desktop como experiencia principal
-- mobile para consultas, ajustes simples y metricas
-- no duplicar complejidad de escritorio en pantallas chicas durante el MVP
+- **Base de datos**: IndexedDB local.
+- **Manejo de Migraciones**: Proceso robusto de actualización de esquemas. Al iniciar, el sistema lee los borradores del esquema legacy en memoria, destruye la base vieja e inicializa la nueva versión de forma sincrónica durante el hook `onupgradeneeded`, previniendo errores de concurrencia y bloqueos en caliente.

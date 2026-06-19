@@ -1,208 +1,123 @@
-# PRD - Sistema de minimercado
+# PRD - Sistema de Packing Lists para Laboratorios Ale-Bet
 
 ## 1. Resumen
 
-Este producto busca reemplazar un sistema viejo de gestion manual para un minimercado de barrio.
-
-La primera version debe cubrir:
-
-- ventas en mostrador
-- control de stock
-- ingresos y egresos
-- lectura de codigo de barras con scanner USB
-- carga manual de productos sin codigo
-- metricas operativas y de negocio
-- uso desde PC del local y, si es posible, desde celular mediante PWA
+Sistema web para gestionar packing lists de exportación de productos veterinarios a 5 países de Latinoamérica, incluyendo generación automática de carteles para pallets.
 
 ## 2. Problema
 
-El cliente hoy depende de un software viejo y de procesos manuales para cargar movimientos, actualizar stock y cobrar. Eso genera friccion operativa, errores de stock y baja visibilidad sobre caja, ventas y rotacion.
+El proceso actual de generación de carteles y packing lists es manual, propenso a errores de tipeo, y consume tiempo en tareas repetitivas como:
+- Escribir datos de remitente por cada cartel
+- Mantener numeración de pallets (01/03, 02/03, etc.)
+- Generar documentos de transporte
 
 ## 3. Objetivo de negocio
 
-- reducir tiempo de cobro y carga de movimientos
-- mejorar la calidad del stock
-- tener metricas utiles para tomar decisiones
-- dejar una base que luego pueda crecer hacia facturacion fiscal
+- Eliminar errores en datos de carteles y packing lists
+- Reducir tiempo de preparación de envíos
+- Mantener historial de exportaciones por país
+- Interfaz simple para operarios de depósito
 
 ## 4. Usuarios
 
-### Operador principal
-
-Una sola cuenta operativa para la primera etapa. Aunque atienden tres personas, no se implementaran roles ni permisos en el MVP.
+### Operador de depósito
+- Persona que prepara los envíos
+- Define países, cantidades de pallets, y contenido
+- Necesita workflow claro y rápido
 
 ## 5. Alcance MVP
 
-### Catalogo e inventario
+### Gestión de países
+- 5 países preconfigurados: Panamá, Colombia, Paraguay, Bolivia, Ecuador
+- Datos de remitente autocompletados según selección
 
-- alta, baja y edicion de productos
-- productos con codigo de barras
-- productos manuales o con codigo interno
-- alta rapida desde scanner si el codigo no existe
-- carga de precio en el mismo flujo de alta
-- stock actual por producto
-- stock minimo y alertas simples
-- ajustes de stock
+### Carteles para pallets
+- Selector de cantidad de carteles (n/X)
+- Preview en formato A4 landscape
+- Impresión independiente (solo carteles)
+- Datos: título, remitente, destinatario, fecha, numeración
 
-### Ventas
+### Packing list
+- Header: país, número de factura, tipo de transporte
+- Múltiples pallets con items
+- Items: producto, lote, producción, cantidad, peso
+- Totales: peso neto, peso bruto, cantidad de cajas
 
-- busqueda por nombre
-- lectura por scanner USB
-- armado de carrito
-- cobro rapido
-- descuento automatico de stock al confirmar venta
-- ticket interno no fiscal
-- agregado directo al carrito si el codigo ya existe
-- alta rapida del producto si el codigo aun no existe
+### Workflow de documentos
+1. **Carteles** - Generar carteles antes de cargar
+2. **Preparación** - Definir estructura del documento y pallets
+3. **Carga** - Completar lotes y cantidades reales
+4. **Finalizada** - Documento cerrado para impresión
 
-### Caja y movimientos
-
-- apertura y cierre de caja
-- registro de ingresos
-- registro de egresos
-- historial de movimientos
-
-### Reportes y metricas
-
-- ventas por dia, semana y mes
-- productos mas vendidos
-- rotacion de inventario
-- stock critico
-- resumen de caja
-- ingresos y egresos por periodo
-
-### Operacion desde dispositivos
-
-- uso principal en PC del local
-- acceso complementario desde celular via PWA
+### Persistencia
+- IndexedDB para guardar documentos localmente
+- Historial de documentos guardados
+- Estados: preparacion, carga, finalizada
 
 ## 6. Fuera de alcance por ahora
 
-- integracion fiscal AFIP/ARCA
-- multiples usuarios y permisos
-- multiples sucursales
-- e-commerce
-- integracion con balanzas
-- integracion con medios de pago o POS bancario
+- Múltiples usuarios y permisos
+- Integración con sistemas de transporte
+- Facturación electrónica
+- Exportación a otros formatos (Excel, etc.)
 
 ## 7. Requisitos no funcionales
 
-- interfaz rapida y clara para mostrador
-- persistencia local para tolerar cortes breves
-- sincronizacion segura cuando haya internet
-- instalable como PWA
-- respaldo y exportacion de datos
+- Interfaz simple y rápida
+- Persistencia local robusta
+- Impresión profesional de documentos
+- Responsive para tablets
 
-## 8. Requisitos de offline
+## 8. Datos de cada país
 
-El offline no debe prometer mas de lo que podamos sostener bien.
+### Destinatario fijo (todos los envíos)
+LABORATORIOS ALE-BET SRL
+CONDARCO 3073, CIUDAD DE BUENOS AIRES, ARGENTINA
 
-Estrategia recomendada para MVP:
+### Remitentes por país
+| Código | Nombre | Dirección |
+|--------|--------|-----------|
+| PANAMA | IMPORTACIONES UNIVERSO ZONA LIBRE S.A | FREE ZONE, COLON - PANAMA |
+| COLOMBIA | LABORATORIOS AUROFARMA SAS | KM 13 VIA OCCIDENTE FUNZA BODEGAS ITALCOL, CUNDINAMARCA-COLOMBIA |
+| PARAGUAY | AGRO VETERINARIA TOTAL SRL | LUIS ALBERTO HERRERA 477, ASUNCION-PARAGUAY |
+| BOLIVIA | VETERQUIMICA BOLIVIANA SRL | AVENIDA PIRAY 493, SANTA CRUZ DE LA SIERRA - BOLIVIA |
+| ECUADOR | QUIMICA SUIZA INDUSTRIAL DEL ECUADOR | AV. GALO PLAZA LASSO 10640 Y MANUEL ZAMBRANO, QUITO-ECUADOR |
 
-- permitir consulta de catalogo, stock reciente y ventas en modo local
-- persistir datos en el dispositivo con IndexedDB
-- sincronizar contra backend cuando vuelva la conexion
-- mostrar estado de sincronizacion y conflictos
+## 9. Formato de carteles
 
-Limite recomendado:
+```
+MERCADERÍA DE EXPORTACIÓN
 
-- offline soportado para cortes breves o intermitencia
-- no vender "offline total multi dispositivo" en la primera version
+[REMITENTE DEL PAÍS SELECCIONADO]
+[DIRECCIÓN DEL REMITENTE]
 
-## 9. Scanner de codigo de barras
+———————————————————————————
 
-El scanner USB se tratara como dispositivo tipo teclado.
+LABORATORIOS ALE-BET SRL
+CONDARCO 3073 CIUDAD DE BUENOS AIRES, ARGENTINA
 
-Debe permitir:
+[DD/MM/AAAA]    [01/03]
+```
 
-- buscar producto al cobrar
-- abrir pantalla de ajuste rapido de stock
-- completar recepcion o reposicion de inventario
-- detectar productos no registrados
-- disparar el alta rapida de producto
-- reutilizar el mismo codigo para futuras ventas y movimientos
+## 10. Riesgos
 
-## 10. Automatizaciones para productos manuales
+- Uso intensivo desde una sola PC
+- Sin backups remotos (solo IndexedDB local)
 
-Los productos sin codigo de barras deben soportar:
-
-- codigo interno autogenerado
-- SKU autogenerado
-- categorias y unidades simples
-- carga rapida desde formulario
-
-## 10.1 Base de productos operativa
-
-El sistema debe construir y mantener una base de productos reutilizable a partir de la operacion diaria.
-
-Cada producto deberia guardar como minimo:
-
-- codigo de barras o codigo interno
-- nombre
-- precio de venta
-- categoria
-- stock actual
-- estado activo
-
-Flujo esperado:
-
-1. se escanea un codigo
-2. si el producto existe, se agrega a venta o ajuste
-3. si no existe, se abre alta rapida con el codigo precargado
-4. se completa al menos nombre y precio
-5. el producto se guarda para futuras operaciones
-
-## 11. Migracion
-
-El cliente tiene archivos del sistema viejo. La primera fase debe incluir analisis de esos archivos para:
-
-- identificar formato de exportacion
-- mapear productos y stock
-- estimar limpieza de datos
-- definir una importacion asistida
-
-## 12. Modelo comercial
-
-Rango objetivo conversado:
-
-- entre USD 120 y USD 150 mensuales
-
-Recomendacion comercial:
-
-- cobrar setup inicial por relevamiento, migracion, configuracion y salida a produccion
-- cobrar fee mensual por hosting, soporte, backups y mejoras menores
-
-## 13. Riesgos
-
-- datos inconsistentes del sistema viejo
-- stock inicial mal migrado
-- expectativa demasiado alta sobre offline
-- necesidad futura de facturacion fiscal
-- uso intensivo desde una sola PC con hardware viejo
-
-## 14. Fases sugeridas
+## 11. Fases
 
 ### Fase 1 - MVP operativo
+- Carteles con selector de cantidad
+- Packing list completo
+- Workflow de 4 etapas
+- Persistencia local
 
-- catalogo
-- stock
-- ventas
-- caja
-- reportes base
-- scanner
-- PWA instalable
+### Fase 2 - Mejoras
+- Exportación a PDF
+- Más países si se agregan rutas
+- Mejoras de UI
 
-### Fase 2 - Robustez operativa
-
-- importacion masiva
-- mejor sincronizacion offline
-- auditoria
-- reglas de reposicion
-- compras a proveedor
-
-### Fase 3 - Expansion
-
-- usuarios y permisos
-- integracion fiscal
-- multi local
-- tableros avanzados
+### Fase 3 - Expansión
+- Múltiples usuarios
+- Reporting
+- Integraciones

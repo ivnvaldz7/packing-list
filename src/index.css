@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* ─── Dark mode: respeta el atributo data-theme actual ─── */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ─── Sistema de diseño Ale-Bet ─── */
+@theme {
+  /* ─── Brand Green (refinado desde #00a949) ─── */
+  --color-brand-50: #edfaf2;
+  --color-brand-100: #d5f4e0;
+  --color-brand-200: #ade9c1;
+  --color-brand-300: #72d798;
+  --color-brand-400: #38be6d;
+  --color-brand-500: #00a949;
+  --color-brand-600: #008a3c;
+  --color-brand-700: #007a36;
+  --color-brand-800: #005f2a;
+  --color-brand-900: #004e24;
+  --color-brand-950: #002b14;
+
+  /* ─── Stone (warm neutral, desde brand-stone actual) ─── */
+  --color-stone-50: #faf9f7;
+  --color-stone-100: #f4f2ec;
+  --color-stone-200: #e8e4da;
+  --color-stone-300: #d4cec0;
+  --color-stone-400: #b0a898;
+  --color-stone-500: #8c8474;
+  --color-stone-600: #6b6456;
+  --color-stone-700: #565046;
+  --color-stone-800: #464139;
+  --color-stone-900: #3a362f;
+  --color-stone-950: #1f1d19;
+
+  /* ─── Surface (backgrounds, cards) ─── */
+  --color-surface: #f4f2ec;
+  --color-surface-alt: #f8fafc;
+  --color-surface-card: rgba(255, 255, 255, 0.75);
+  --color-surface-overlay: rgba(0, 0, 0, 0.5);
+
+  /* ─── Semantic ─── */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* ─── Tipografía ─── */
+  --font-family-sans: "Onest", "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* ─── Animaciones ─── */
+  --animate-stage-in: stage-fade-in 260ms ease;
+}
+
+@keyframes stage-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Base reset ─── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    font-family: var(--font-family-sans);
+    background: var(--color-stone-100);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :root[data-theme="dark"] body {
+    background: var(--color-stone-950);
+  }
+}

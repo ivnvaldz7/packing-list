@@ -66,11 +66,13 @@ const validatePallet = (pallet: Pallet, mode: 'preparacion' | 'carga'): PalletVa
     Object.values(groupedItems).forEach((group) => {
       const plannedQuantity = group[0]?.plannedQuantity ?? 0;
       const actualQuantity = group.reduce((sum, item) => sum + item.quantity, 0);
-      const difference = plannedQuantity - actualQuantity;
 
-      if (difference === 0) {
+      // Si no hay cantidad planeada (item creado directo en carga), no hay contra qué comparar
+      if (plannedQuantity === 0 || plannedQuantity === actualQuantity) {
         return;
       }
+
+      const difference = plannedQuantity - actualQuantity;
 
       const message =
         difference > 0 ? `Faltan ${difference} frascos.` : `Sobran ${Math.abs(difference)} frascos.`;

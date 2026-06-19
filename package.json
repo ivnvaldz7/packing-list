@@ -1,7 +1,8 @@
 {
-  "name": "organizador-paletas-exportacion",
+  "name": "packing-list-alebet",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Sistema de packing lists y cartelería para Laboratorios Ale-Bet",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,9 +16,11 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "tailwindcss": "^4.3.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.10"
   }
