@@ -16,7 +16,6 @@ export const DocumentSummary = ({
   totalBoxes,
   isValid,
 }: DocumentSummaryProps) => {
-  const totalItems = document.pallets.reduce((sum, pallet) => sum + pallet.items.length, 0);
   const totalUnits = document.pallets.reduce(
     (sum, pallet) => sum + pallet.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
     0,
@@ -29,65 +28,38 @@ export const DocumentSummary = ({
         : 'Finalizada';
 
   return (
-    <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      {/* ─── Notes ─── */}
-      <article className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-700 dark:bg-stone-900">
-        <h3 className="mb-3 text-base font-semibold text-stone-800 dark:text-stone-100">
-          Notas de exportación
-        </h3>
-        <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-400">
-          El documento se completa en dos etapas: primero se prepara la estructura del embarque y
-          después el encargado carga digitalmente los productos, lotes y cantidades reales de cada
-          paleta.
-        </p>
-        <div className="mt-8 space-y-6">
-          <div>
-            <div className="mb-1.5 h-px w-48 bg-stone-300 dark:bg-stone-600" />
-            <p className="text-xs text-stone-400">Firma responsable logística</p>
-          </div>
-          <div>
-            <div className="mb-1.5 h-px w-48 bg-stone-300 dark:bg-stone-600" />
-            <p className="text-xs text-stone-400">Sello institucional Ale-Bet</p>
-          </div>
+    <article className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-700 dark:bg-stone-900">
+      <h3 className="mb-4 text-base font-semibold text-stone-800 dark:text-stone-100">
+        Resumen consolidado de carga
+      </h3>
+      <div className="grid grid-cols-2 gap-x-8 gap-y-3 md:grid-cols-3">
+        <SummaryRow label="Total paletas" value={String(document.pallets.length).padStart(2, '0')} />
+        <SummaryRow label="Total cajas" value={String(totalBoxes)} />
+        <SummaryRow label="Total unidades" value={String(totalUnits)} />
+        <SummaryRow label="Peso neto total" value={formatWeight(totalNetWeightKg)} />
+        <SummaryRow label="Peso bruto estimado" value={formatWeight(totalGrossWeightKg)} />
+
+        <div className="col-span-2 flex items-center justify-between border-b border-stone-100 pb-2 md:col-span-3 dark:border-stone-800">
+          <span className="text-sm text-stone-500 dark:text-stone-400">Validación</span>
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              isValid
+                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:ring-emerald-800'
+                : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:ring-amber-800'
+            }`}
+          >
+            {isValid ? 'Borrador validado' : 'Revisión pendiente'}
+          </span>
         </div>
-      </article>
 
-      {/* ─── Summary card ─── */}
-      <article className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-700 dark:bg-stone-900">
-        <h3 className="mb-4 text-base font-semibold text-stone-800 dark:text-stone-100">
-          Resumen consolidado de carga
-        </h3>
-        <div className="space-y-3">
-          <SummaryRow label="Total paletas" value={String(document.pallets.length).padStart(2, '0')} />
-          <SummaryRow label="Total cajas" value={String(totalBoxes)} />
-          <SummaryRow label="Total unidades" value={String(totalUnits)} />
-          <SummaryRow label="Peso neto total" value={formatWeight(totalNetWeightKg)} />
-          <SummaryRow label="Peso bruto estimado" value={formatWeight(totalGrossWeightKg)} />
-
-          <div className="border-t border-stone-100 pt-3 dark:border-stone-800" />
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-stone-500 dark:text-stone-400">Validación</span>
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                isValid
-                  ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:ring-emerald-800'
-                  : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:ring-amber-800'
-              }`}
-            >
-              {isValid ? 'Borrador validado' : 'Revisión pendiente'}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-stone-500 dark:text-stone-400">Flujo</span>
-            <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600 ring-1 ring-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:ring-stone-700">
-              {workflowLabel}
-            </span>
-          </div>
+        <div className="col-span-2 flex items-center justify-between border-b border-stone-100 pb-2 md:col-span-3 dark:border-stone-800">
+          <span className="text-sm text-stone-500 dark:text-stone-400">Flujo</span>
+          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600 ring-1 ring-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:ring-stone-700">
+            {workflowLabel}
+          </span>
         </div>
-      </article>
-    </section>
+      </div>
+    </article>
   );
 };
 

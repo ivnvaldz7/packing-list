@@ -81,6 +81,7 @@ const App = () => {
 
   const handleStageChange = (nextStage: 'carteles' | 'preparacion' | 'carga') => {
     setActiveStage(nextStage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (nextStage === 'preparacion') {
       updateWorkflowStatus('preparacion');
     } else if (nextStage === 'carga') {

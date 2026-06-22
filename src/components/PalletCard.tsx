@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react';
 import type { ItemValidation, PalletComputed, Product } from '../types';
 import { formatWeight, formatWholeWeight } from '../utils/format';
 import { InputField } from './Field';
+import { IconTrash } from './layout/Icons';
 
 /* ─── Shared input classes ─── */
 
@@ -217,9 +218,10 @@ export const PalletCard = ({
                       type="button"
                       onClick={() => onRemoveItem(pallet.id, item.id)}
                       disabled={pallet.items.length === 1}
-                      className="text-xs text-stone-400 transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:text-stone-500 dark:hover:text-red-400"
+                      title="Eliminar item"
+                      className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:text-stone-500 dark:hover:bg-red-950 dark:hover:text-red-400"
                     >
-                      Quitar
+                      <IconTrash className="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
@@ -234,28 +236,19 @@ export const PalletCard = ({
               key={item.id}
               className="rounded-lg border border-stone-200 bg-stone-50 p-4 dark:border-stone-700 dark:bg-stone-800/50"
             >
-              <div className="mb-3 flex items-start justify-between">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500">
-                    {`Item ${itemIndex + 1}`}
-                  </span>
-                  <strong className="ml-2 text-sm text-stone-800 dark:text-stone-100">
-                    {item.description || 'Seleccionar producto'}
-                  </strong>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs font-medium text-stone-500 dark:text-stone-400">
-                    {formatWeight(item.netWeightKg)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => onRemoveItem(pallet.id, item.id)}
-                    disabled={pallet.items.length === 1}
-                    className="text-xs text-stone-400 transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:text-stone-500 dark:hover:text-red-400"
-                  >
-                    Quitar
-                  </button>
-                </div>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+                  {`Item ${itemIndex + 1}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onRemoveItem(pallet.id, item.id)}
+                  disabled={pallet.items.length === 1}
+                  title="Eliminar item"
+                  className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:text-stone-500 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  <IconTrash className="h-4 w-4" />
+                </button>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
