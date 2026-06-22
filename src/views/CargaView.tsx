@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { ItemValidation, PalletComputed, Product, ShipmentDocument, ShipmentValidation } from '../types';
 import { formatWeight } from '../utils/format';
-import { PalletCardCarga } from '../components/PalletCardCarga';
+import { PalletCard } from '../components/PalletCard';
 
 type CargaViewProps = {
   document: ShipmentDocument;
@@ -155,7 +155,8 @@ export const CargaView = ({
 
                 {isActive && (
                   <div className="border-t border-stone-200 p-5 dark:border-stone-700">
-                    <PalletCardCarga
+                    <PalletCard
+                      mode="carga"
                       pallet={pallet}
                       products={products}
                       autoFocusItemId={lastCreatedItemId}

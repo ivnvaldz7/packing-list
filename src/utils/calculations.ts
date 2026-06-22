@@ -3,7 +3,7 @@ import type { Pallet, PalletComputed, PalletItem, PalletItemComputed } from '../
 const roundTo3 = (value: number): number => Math.round(value * 1000) / 1000;
 
 export const calculateItemBoxes = (item: PalletItem): number =>
-  item.unitsPerBox > 0 ? roundTo3(item.quantity / item.unitsPerBox) : 0;
+  item.unitsPerBox > 0 ? Math.floor(item.quantity / item.unitsPerBox) : 0;
 
 export const calculateItemNetWeight = (item: PalletItem): number =>
   roundTo3(calculateItemBoxes(item) * item.weightPerBoxKg);
@@ -32,6 +32,7 @@ export const calculateComputedPallet = (pallet: Pallet): PalletComputed => {
 export const calculateDocumentTotals = (pallets: Pallet[]): {
   totalNetWeightKg: number;
   totalGrossWeightKg: number;
+  totalBoxes: number;
 } => {
   const computedPallets = pallets.map(calculateComputedPallet);
 
@@ -42,5 +43,9 @@ export const calculateDocumentTotals = (pallets: Pallet[]): {
     totalGrossWeightKg: roundTo3(
       computedPallets.reduce((sum, pallet) => sum + pallet.totalGrossWeightKg, 0),
     ),
+    totalBoxes: computedPallets.reduce((sum, pallet) =>
+      sum + pallet.items.reduce((itemSum, item) => itemSum + item.boxesCount, 0),
+    0),
   };
 };
+

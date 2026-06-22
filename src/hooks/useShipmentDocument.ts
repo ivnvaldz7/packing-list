@@ -117,22 +117,26 @@ export const useShipmentDocument = () => {
       return;
     }
 
-    void saveDocument(document)
-      .then(() => setActiveDocumentId(document.id))
-      .then(() =>
-        setLibrary((currentLibrary) => {
-          const nextSummary = summarizeDocument(document);
-          const nextLibrary = currentLibrary.some((entry) => entry.id === document.id)
-            ? currentLibrary.map((entry) => (entry.id === document.id ? nextSummary : entry))
-            : [nextSummary, ...currentLibrary];
+    const timeoutId = setTimeout(() => {
+      void saveDocument(document)
+        .then(() => setActiveDocumentId(document.id))
+        .then(() =>
+          setLibrary((currentLibrary) => {
+            const nextSummary = summarizeDocument(document);
+            const nextLibrary = currentLibrary.some((entry) => entry.id === document.id)
+              ? currentLibrary.map((entry) => (entry.id === document.id ? nextSummary : entry))
+              : [nextSummary, ...currentLibrary];
 
-          return [...nextLibrary].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-        }),
-      )
-      .catch((saveError: unknown) => {
-        setError('No pudimos guardar los cambios en IndexedDB.');
-        console.error(saveError);
-      });
+            return [...nextLibrary].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+          }),
+        )
+        .catch((saveError: unknown) => {
+          setError('No pudimos guardar los cambios en IndexedDB.');
+          console.error(saveError);
+        });
+    }, 600);
+
+    return () => clearTimeout(timeoutId);
   }, [document, status]);
 
   const updateHeader = <K extends keyof DocumentHeader>(field: K, value: DocumentHeader[K]): void => {

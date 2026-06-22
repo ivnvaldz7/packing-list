@@ -5,6 +5,7 @@ type DocumentSummaryProps = {
   document: ShipmentDocument;
   totalNetWeightKg: number;
   totalGrossWeightKg: number;
+  totalBoxes: number;
   isValid: boolean;
 };
 
@@ -12,6 +13,7 @@ export const DocumentSummary = ({
   document,
   totalNetWeightKg,
   totalGrossWeightKg,
+  totalBoxes,
   isValid,
 }: DocumentSummaryProps) => {
   const totalItems = document.pallets.reduce((sum, pallet) => sum + pallet.items.length, 0);
@@ -57,7 +59,7 @@ export const DocumentSummary = ({
         </h3>
         <div className="space-y-3">
           <SummaryRow label="Total paletas" value={String(document.pallets.length).padStart(2, '0')} />
-          <SummaryRow label="Items cargados" value={String(totalItems).padStart(2, '0')} />
+          <SummaryRow label="Total cajas" value={String(totalBoxes)} />
           <SummaryRow label="Total unidades" value={String(totalUnits)} />
           <SummaryRow label="Peso neto total" value={formatWeight(totalNetWeightKg)} />
           <SummaryRow label="Peso bruto estimado" value={formatWeight(totalGrossWeightKg)} />

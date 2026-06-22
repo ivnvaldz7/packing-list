@@ -232,6 +232,7 @@ const App = () => {
             document={document}
             totalNetWeightKg={totals.totalNetWeightKg}
             totalGrossWeightKg={totals.totalGrossWeightKg}
+            totalBoxes={totals.totalBoxes}
             isValid={validation.isValid}
           />
         </section>
@@ -239,6 +240,7 @@ const App = () => {
         {/* ─── Footer ─── */}
         <footer className="flex items-center justify-between border-t border-stone-200 pt-4 text-sm text-stone-500 dark:border-stone-800 dark:text-stone-400">
           <span>{`Paletas: ${document.pallets.length}`}</span>
+          <span>{`Cajas: ${totals.totalBoxes}`}</span>
           <span>{`Peso neto total: ${formatWeight(totals.totalNetWeightKg)}`}</span>
           <span>{`Peso bruto total: ${formatWeight(totals.totalGrossWeightKg)}`}</span>
         </footer>

@@ -1,5 +1,5 @@
 import type { ItemValidation, PalletComputed, Product, ShipmentDocument, ShipmentValidation } from '../types';
-import { PalletCardPreparacion } from '../components/PalletCardPreparacion';
+import { PalletCard } from '../components/PalletCard';
 
 type PreparacionViewProps = {
   document: ShipmentDocument;
@@ -19,7 +19,7 @@ type PreparacionViewProps = {
   onUpdateItem: (
     palletId: string,
     itemId: string,
-    field: 'quantity',
+    field: 'productionNumber' | 'quantity',
     value: string | number,
   ) => void;
   onRemoveItem: (palletId: string, itemId: string) => void;
@@ -120,7 +120,8 @@ export const PreparacionView = ({
           <div className="space-y-4">
             {computedPallets.map((pallet, index) => (
               <div key={pallet.id}>
-                <PalletCardPreparacion
+                <PalletCard
+                  mode="preparacion"
                   pallet={pallet}
                   products={products}
                   autoFocusItemId={lastCreatedItemId}

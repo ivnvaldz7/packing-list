@@ -34,7 +34,7 @@ const normalizeItem = (item: Partial<PalletItem>): PalletItem => ({
 const normalizePallet = (pallet: Partial<Pallet>): Pallet => ({
   id: pallet.id ?? crypto.randomUUID(),
   label: pallet.label ?? 'Paleta',
-  palletTareWeightKg: FIXED_PALLET_TARE_WEIGHT_KG,
+  palletTareWeightKg: typeof pallet.palletTareWeightKg === 'number' ? pallet.palletTareWeightKg : FIXED_PALLET_TARE_WEIGHT_KG,
   items:
     pallet.items && pallet.items.length > 0
       ? pallet.items.map((item) => normalizeItem(item))

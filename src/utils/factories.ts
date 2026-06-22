@@ -73,8 +73,8 @@ export const renumberAutomaticPalletLabels = (pallets: Pallet[]): Pallet[] =>
 export const createSplitItem = (item: PalletItem, quantity: number): PalletItem => ({
   ...item,
   id: createId(),
-  planId: createId(),
+  planId: item.planId,
   productionNumber: item.productionNumber,
-  plannedQuantity: quantity,
+  plannedQuantity: item.plannedQuantity,
   quantity,
 });
