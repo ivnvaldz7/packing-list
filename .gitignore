@@ -3,3 +3,10 @@ dist
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+.atl/
+coverage/
+diff.txt
+
+# Playwright
+playwright-report/
+test-results/

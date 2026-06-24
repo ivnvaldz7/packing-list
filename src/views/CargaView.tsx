@@ -10,6 +10,7 @@ type CargaViewProps = {
   lastCreatedItemId: string | null;
   activePalletId: string | null;
   validation: ShipmentValidation;
+  readOnly?: boolean;
   onSetActivePallet: (palletId: string | null) => void;
   onAddPallet: () => void;
   onUpdatePallet: {
@@ -36,6 +37,7 @@ export const CargaView = ({
   lastCreatedItemId,
   activePalletId,
   validation,
+  readOnly = false,
   onSetActivePallet,
   onAddPallet,
   onUpdatePallet,
@@ -90,13 +92,15 @@ export const CargaView = ({
             una paleta por vez con sus productos, lotes y cantidades definitivas.
           </p>
         </div>
-        <button
-          type="button"
-          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
-          onClick={onAddPallet}
-        >
-          Añadir paleta
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
+            onClick={onAddPallet}
+          >
+            Añadir paleta
+          </button>
+        )}
       </div>
 
       {!hasPallets ? (
@@ -165,6 +169,7 @@ export const CargaView = ({
                       }
                       index={index}
                       canRemove={computedPallets.length > 1}
+                      readOnly={readOnly}
                       onUpdatePallet={onUpdatePallet}
                       onRemovePallet={onRemovePallet}
                       onAddItem={onAddItem}

@@ -7,6 +7,7 @@ type PreparacionViewProps = {
   products: Product[];
   lastCreatedItemId: string | null;
   validation: ShipmentValidation;
+  readOnly?: boolean;
   onAddPallet: () => void;
   onUpdatePallet: {
     (palletId: string, field: 'label', value: string): void;
@@ -32,6 +33,7 @@ export const PreparacionView = ({
   products,
   lastCreatedItemId,
   validation,
+  readOnly = false,
   onAddPallet,
   onUpdatePallet,
   onRemovePallet,
@@ -56,13 +58,15 @@ export const PreparacionView = ({
             paleta. Los lotes y cantidades reales se completan después.
           </p>
         </div>
-        <button
-          type="button"
-          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
-          onClick={onAddPallet}
-        >
-          Añadir paleta
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
+            onClick={onAddPallet}
+          >
+            Añadir paleta
+          </button>
+        )}
       </div>
 
       {/* Stats cards */}
@@ -130,6 +134,7 @@ export const PreparacionView = ({
                   }
                   index={index}
                   canRemove={computedPallets.length > 1}
+                  readOnly={readOnly}
                   onUpdatePallet={onUpdatePallet}
                   onRemovePallet={onRemovePallet}
                   onAddItem={onAddItem}
@@ -138,27 +143,31 @@ export const PreparacionView = ({
                   onUpdateItem={onUpdateItem}
                   onRemoveItem={onRemoveItem}
                 />
-                <div className="mt-2 flex justify-end">
-                  <button
-                    type="button"
-                    className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-                    onClick={() => onNavigateToCarga(pallet.id)}
-                  >
-                    Pasar a carga final →
-                  </button>
-                </div>
+                {!readOnly && (
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+                      onClick={() => onNavigateToCarga(pallet.id)}
+                    >
+                      Pasar a carga final →
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
-          <div className="mt-6">
-            <button
-              type="button"
-              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-all hover:bg-stone-100 active:scale-95 dark:border-stone-600 dark:text-stone-300 dark:hover:bg-stone-800"
-              onClick={onAddPallet}
-            >
-              Añadir otra paleta
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="mt-6">
+              <button
+                type="button"
+                className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-all hover:bg-stone-100 active:scale-95 dark:border-stone-600 dark:text-stone-300 dark:hover:bg-stone-800"
+                onClick={onAddPallet}
+              >
+                Añadir otra paleta
+              </button>
+            </div>
+          )}
         </>
       )}
     </section>

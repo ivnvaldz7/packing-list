@@ -31,11 +31,12 @@ describe('validation', () => {
     workflowStatus: mode,
     updatedAt: '',
     header: {
-      country: 'TEST',
+      country: 'PANAMA',
       laboratoryName: '',
       address: '',
       invoiceNumber: 'E-0005-0001',
-      transportType: 'Maritimo'
+      transportType: 'Maritimo',
+      shipmentDate: '2026-06-23',
     },
     pallets,
   });

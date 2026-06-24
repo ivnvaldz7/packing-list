@@ -39,6 +39,7 @@ export const createInitialDocument = (): ShipmentDocument => ({
     address: '',
     invoiceNumber: DEFAULT_INVOICE_PREFIX,
     transportType: 'Maritimo',
+    shipmentDate: new Date().toISOString().slice(0, 10),
   },
   pallets: [createEmptyPallet(1)],
   workflowStatus: 'preparacion',

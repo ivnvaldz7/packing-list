@@ -22,6 +22,7 @@ export type PalletCardProps = {
   itemErrors: Record<string, ItemValidation>;
   index: number;
   canRemove: boolean;
+  readOnly?: boolean;
   onUpdatePallet: {
     (palletId: string, field: 'label', value: string): void;
     (palletId: string, field: 'palletTareWeightKg', value: number): void;
@@ -59,6 +60,7 @@ export const PalletCard = ({
   itemErrors,
   index,
   canRemove,
+  readOnly = false,
   onUpdatePallet,
   onRemovePallet,
   onAddItem,
@@ -104,30 +106,32 @@ export const PalletCard = ({
           </label>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onAddItem(pallet.id)}
-            className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 transition-all hover:bg-brand-100 active:scale-95 dark:border-brand-800 dark:bg-brand-950 dark:text-brand-300 dark:hover:bg-brand-900"
-          >
-            Agregar {mode === 'carga' ? 'item' : 'producto'}
-          </button>
-          <button
-            type="button"
-            onClick={() => onClonePallet(pallet.id)}
-            className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:bg-stone-50 active:scale-95 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 dark:hover:bg-stone-800"
-          >
-            Duplicar paleta
-          </button>
-          <button
-            type="button"
-            onClick={() => onRemovePallet(pallet.id)}
-            disabled={!canRemove}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-500 transition-all hover:bg-red-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:text-red-400 dark:hover:bg-red-950"
-          >
-            Eliminar
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onAddItem(pallet.id)}
+              className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 transition-all hover:bg-brand-100 active:scale-95 dark:border-brand-800 dark:bg-brand-950 dark:text-brand-300 dark:hover:bg-brand-900"
+            >
+              Agregar {mode === 'carga' ? 'item' : 'producto'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onClonePallet(pallet.id)}
+              className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:bg-stone-50 active:scale-95 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 dark:hover:bg-stone-800"
+            >
+              Duplicar paleta
+            </button>
+            <button
+              type="button"
+              onClick={() => onRemovePallet(pallet.id)}
+              disabled={!canRemove}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-500 transition-all hover:bg-red-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:text-red-400 dark:hover:bg-red-950"
+            >
+              Eliminar
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ─── Label ─── */}
@@ -167,21 +171,22 @@ export const PalletCard = ({
             <tbody>
               {pallet.items.map((item) => (
                 <tr key={item.id} className="border-b border-stone-100 last:border-0 dark:border-stone-800">
-                  <td className="px-3 py-2">
-                    <select
-                      value={item.productId}
-                      onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
-                      className={itemErrors[item.id]?.productId ? fieldErrCls : fieldCls}
-                      title={itemErrors[item.id]?.productId}
-                    >
-                      <option value="">Seleccionar producto</option>
-                      {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                    <td className="px-3 py-2">
+                      <select
+                        value={item.productId}
+                        onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
+                        className={itemErrors[item.id]?.productId ? fieldErrCls : fieldCls}
+                        title={itemErrors[item.id]?.productId}
+                        disabled={readOnly}
+                      >
+                        <option value="">Seleccionar producto</option>
+                        {products.map((product) => (
+                          <option key={product.id} value={product.id}>
+                            {product.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                   <td className="px-3 py-2">
                     <input value={item.unit} readOnly className={readonlyCls} />
                   </td>
@@ -203,21 +208,22 @@ export const PalletCard = ({
                   </td>
                   <td className="px-3 py-2">
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      value={item.quantity === 0 ? '' : item.quantity}
-                      onChange={(event) =>
-                        onUpdateItem(pallet.id, item.id, 'quantity', parseIntegerInput(event))
-                      }
-                      className={itemErrors[item.id]?.quantity ? fieldErrCls : fieldCls}
-                      title={itemErrors[item.id]?.quantity}
-                    />
+                        type="text"
+                        inputMode="numeric"
+                        value={item.quantity === 0 ? '' : item.quantity}
+                        onChange={(event) =>
+                          onUpdateItem(pallet.id, item.id, 'quantity', parseIntegerInput(event))
+                        }
+                        className={itemErrors[item.id]?.quantity ? fieldErrCls : fieldCls}
+                        title={itemErrors[item.id]?.quantity}
+                        readOnly={readOnly}
+                      />
                   </td>
                   <td className="px-3 py-2 text-right">
                     <button
                       type="button"
                       onClick={() => onRemoveItem(pallet.id, item.id)}
-                      disabled={pallet.items.length === 1}
+                      disabled={pallet.items.length === 1 || readOnly}
                       title="Eliminar item"
                       className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:text-stone-500 dark:hover:bg-red-950 dark:hover:text-red-400"
                     >
@@ -243,7 +249,7 @@ export const PalletCard = ({
                 <button
                   type="button"
                   onClick={() => onRemoveItem(pallet.id, item.id)}
-                  disabled={pallet.items.length === 1}
+                  disabled={pallet.items.length === 1 || readOnly}
                   title="Eliminar item"
                   className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:text-stone-500 dark:hover:bg-red-950 dark:hover:text-red-400"
                 >
@@ -259,6 +265,7 @@ export const PalletCard = ({
                     onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
                     className={itemErrors[item.id]?.productId ? fieldErrCls : `${fieldCls} text-left`}
                     title={itemErrors[item.id]?.productId}
+                    disabled={readOnly}
                   >
                     <option value="">Seleccionar producto</option>
                     {products.map((product) => (
@@ -285,6 +292,7 @@ export const PalletCard = ({
                     className={itemErrors[item.id]?.productionNumber ? fieldErrCls : fieldCls}
                     title={itemErrors[item.id]?.productionNumber}
                     placeholder="138"
+                    readOnly={readOnly}
                   />
                 </label>
 
@@ -299,6 +307,7 @@ export const PalletCard = ({
                     }
                     className={itemErrors[item.id]?.quantity ? fieldErrCls : fieldCls}
                     title={itemErrors[item.id]?.quantity}
+                    readOnly={readOnly}
                   />
                 </label>
 

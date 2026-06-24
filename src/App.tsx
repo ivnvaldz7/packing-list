@@ -8,6 +8,7 @@ import { PrintDocumentView } from './components/PrintDocumentView';
 import { useShipmentDocument } from './hooks/useShipmentDocument';
 import { formatWeight } from './utils/format';
 import { exportShipmentDocumentPdf } from './utils/pdf';
+import { exportShipmentDocumentXlsx } from './utils/excel';
 import { validateShipmentDocument } from './utils/validation';
 import { CartelesView } from './views/CartelesView';
 import { CargaView } from './views/CargaView';
@@ -35,6 +36,7 @@ const App = () => {
     lastCreatedItemId,
     status,
     error,
+    isSaving,
     updateHeader,
     updateWorkflowStatus,
     createNewDocument,
@@ -96,13 +98,23 @@ const App = () => {
   };
 
   const handleFinalize = () => {
+    if (!window.confirm('¿Finalizar la lista de empaque? Una vez finalizada no se puede editar.')) {
+      return;
+    }
+
     updateWorkflowStatus('finalizada');
     window.document.body.classList.add('printing-document-only');
     window.print();
   };
 
+  const isReadOnly = document.workflowStatus === 'finalizada';
+
   const handlePrintPdf = () => {
     void exportShipmentDocumentPdf(document, computedPallets, totals);
+  };
+
+  const handleExportExcel = () => {
+    exportShipmentDocumentXlsx(document, computedPallets, totals);
   };
 
   const handleSummaryClick = () => {
@@ -149,11 +161,13 @@ const App = () => {
       <Layout
         activeStage={activeStage}
         onStageChange={handleStageChange}
-        onFinalize={validation.isValid ? handleFinalize : undefined}
+        onFinalize={!isReadOnly && validation.isValid ? handleFinalize : undefined}
         onSummaryClick={handleSummaryClick}
         title="Lista de empaque"
         subtitle={document.header.invoiceNumber || 'Sin factura'}
+        isSaving={isSaving}
         onPrint={handlePrintPdf}
+        onExportExcel={handleExportExcel}
         onNew={createNewDocument}
         onOpenLibrary={() => setIsLibraryOpen(true)}
         theme={theme}
@@ -181,6 +195,7 @@ const App = () => {
             header={document.header}
             errors={validation.headerErrors}
             onChange={updateHeader}
+            readOnly={isReadOnly}
           />
         </section>
 
@@ -192,6 +207,7 @@ const App = () => {
             products={products}
             lastCreatedItemId={lastCreatedItemId}
             validation={validation}
+            readOnly={isReadOnly}
             onAddPallet={addPallet}
             onUpdatePallet={updatePallet}
             onRemovePallet={removePallet}
@@ -213,6 +229,7 @@ const App = () => {
             lastCreatedItemId={lastCreatedItemId}
             activePalletId={activePalletId}
             validation={validation}
+            readOnly={isReadOnly}
             onSetActivePallet={setActivePalletId}
             onAddPallet={addPallet}
             onUpdatePallet={updatePallet}

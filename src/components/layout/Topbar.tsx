@@ -1,17 +1,19 @@
-import { IconSave, IconPrinter, IconSun, IconMoon, IconPlus, IconList } from './Icons';
+import { IconSave, IconPrinter, IconSun, IconMoon, IconPlus, IconList, IconDownload } from './Icons';
 
 type TopbarProps = {
   title: string;
   subtitle?: string;
+  isSaving?: boolean;
   onSave?: () => void;
   onPrint?: () => void;
+  onExportExcel?: () => void;
   onNew?: () => void;
   onOpenLibrary?: () => void;
   theme: 'light' | 'dark';
   onThemeToggle: () => void;
 };
 
-export const Topbar = ({ title, subtitle, onSave, onPrint, onNew, onOpenLibrary, theme, onThemeToggle }: TopbarProps) => {
+export const Topbar = ({ title, subtitle, isSaving, onSave, onPrint, onExportExcel, onNew, onOpenLibrary, theme, onThemeToggle }: TopbarProps) => {
   const btnClass =
     'flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 transition-all duration-150 hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200';
 
@@ -33,7 +35,22 @@ export const Topbar = ({ title, subtitle, onSave, onPrint, onNew, onOpenLibrary,
       </div>
 
       {/* ─── Right: Actions ─── */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
+        {/* ─── Autosave indicator ─── */}
+        <span
+          className={`flex items-center gap-1.5 text-[11px] font-medium transition-all duration-300 ${
+            isSaving
+              ? 'text-amber-500 opacity-100'
+              : 'text-emerald-600 opacity-100'
+          }`}
+        >
+          <span
+            className={`inline-block h-1.5 w-1.5 rounded-full ${
+              isSaving ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'
+            }`}
+          />
+          {isSaving ? 'Guardando...' : 'Guardado'}
+        </span>
         {onSave && (
           <button onClick={onSave} title="Guardar" className={btnClass}>
             <IconSave className="h-4 w-4" />
@@ -42,6 +59,11 @@ export const Topbar = ({ title, subtitle, onSave, onPrint, onNew, onOpenLibrary,
         {onPrint && (
           <button onClick={onPrint} title="Imprimir" className={btnClass}>
             <IconPrinter className="h-4 w-4" />
+          </button>
+        )}
+        {onExportExcel && (
+          <button onClick={onExportExcel} title="Exportar a Excel" className={btnClass}>
+            <IconDownload className="h-4 w-4" />
           </button>
         )}
         {onNew && (

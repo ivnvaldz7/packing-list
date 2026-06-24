@@ -7,6 +7,7 @@ export type DocumentHeader = {
   country: ShipmentCountry;
   address: string;
   transportType: 'Maritimo' | 'Aereo' | 'Terrestre';
+  shipmentDate: string;
 };
 
 export type ProductUnit = 'Unidades' | 'Frascos';
@@ -64,7 +65,9 @@ export type StoredDocumentSummary = {
   palletCount: number;
 };
 
-export type HeaderValidation = Partial<Record<keyof DocumentHeader, string>>;
+export type HeaderValidation = Partial<Record<keyof DocumentHeader, string>> & {
+  shipmentDate?: string;
+};
 
 export type ItemValidation = {
   productId?: string;

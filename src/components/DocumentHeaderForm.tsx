@@ -10,9 +10,10 @@ type DocumentHeaderFormProps = {
   header: DocumentHeader;
   errors: HeaderValidation;
   onChange: <K extends keyof DocumentHeader>(field: K, value: DocumentHeader[K]) => void;
+  readOnly?: boolean;
 };
 
-export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderFormProps) => {
+export const DocumentHeaderForm = ({ header, errors, onChange, readOnly = false }: DocumentHeaderFormProps) => {
   const selectedCountryPreset = getCountryPresetValue(header);
 
   return (
@@ -53,11 +54,12 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
               }
               placeholder="0005"
               aria-invalid={Boolean(errors.invoiceNumber)}
+              readOnly={readOnly}
               className={`w-full rounded-r-lg border px-3.5 py-2.5 text-sm transition-all duration-150 focus:outline-none focus:ring-2 ${
                 errors.invoiceNumber
                   ? 'border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-red-500/20 dark:border-red-700 dark:bg-red-950 dark:text-red-300'
                   : 'border-stone-300 bg-white text-stone-900 focus:border-brand-500 focus:ring-brand-500/20 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100'
-              }`}
+              } ${readOnly ? 'cursor-default opacity-70' : ''}`}
             />
           </div>
         </Field>
@@ -68,6 +70,7 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
           onChange={(event) => onChange('country', event.target.value as DocumentHeader['country'])}
           options={[{ value: '', label: 'Seleccioná un país...' }, ...shipmentCountries]}
           error={errors.country}
+          disabled={readOnly}
         />
 
         <SelectField
@@ -81,10 +84,23 @@ export const DocumentHeaderForm = ({ header, errors, onChange }: DocumentHeaderF
             { value: 'Aereo', label: 'Aéreo' },
             { value: 'Terrestre', label: 'Terrestre' },
           ]}
+          disabled={readOnly}
         />
       </div>
 
-      {/* ─── Grid 2: Laboratory, Address (readonly) ─── */}
+      {/* ─── Grid 2: Fecha de embarque ─── */}
+      <div className="mb-4">
+        <InputField
+          label="Fecha de embarque"
+          type="date"
+          value={header.shipmentDate}
+          onChange={(event) => onChange('shipmentDate', event.target.value)}
+          error={errors.shipmentDate}
+          readOnly={readOnly}
+        />
+      </div>
+
+      {/* ─── Grid 3: Laboratory, Address (readonly) ─── */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <InputField
           label="Laboratorio autocompletado"

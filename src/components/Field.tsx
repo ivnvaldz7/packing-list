@@ -90,14 +90,16 @@ type SelectFieldProps = {
   onChange: ChangeEventHandler<HTMLSelectElement>;
   options: Array<{ value: string; label: string }>;
   error?: string;
+  disabled?: boolean;
 };
 
-export const SelectField = ({ label, value, onChange, options, error }: SelectFieldProps) => (
+export const SelectField = ({ label, value, onChange, options, error, disabled }: SelectFieldProps) => (
   <Field label={label} error={error}>
     <select
       value={value}
       onChange={onChange}
       aria-invalid={Boolean(error)}
+      disabled={disabled}
       className={inputClasses(error)}
     >
       {options.map((option) => (

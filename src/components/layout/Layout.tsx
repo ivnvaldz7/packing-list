@@ -17,8 +17,10 @@ type LayoutProps = {
   /* ─── Topbar ─── */
   title: string;
   subtitle?: string;
+  isSaving?: boolean;
   onSave?: () => void;
   onPrint?: () => void;
+  onExportExcel?: () => void;
   onNew?: () => void;
   onOpenLibrary?: () => void;
   theme: 'light' | 'dark';
@@ -33,8 +35,10 @@ export const Layout = ({
   onSummaryClick,
   title,
   subtitle,
+  isSaving,
   onSave,
   onPrint,
+  onExportExcel,
   onNew,
   onOpenLibrary,
   theme,
@@ -57,8 +61,10 @@ export const Layout = ({
         <Topbar
           title={title}
           subtitle={subtitle}
+          isSaving={isSaving}
           onSave={onSave}
           onPrint={onPrint}
+          onExportExcel={onExportExcel}
           onNew={onNew}
           onOpenLibrary={onOpenLibrary}
           theme={theme}

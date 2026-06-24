@@ -57,6 +57,10 @@ const normalizeHeader = (header?: Partial<DocumentHeader> & Record<string, unkno
     header?.transportType === 'Maritimo'
       ? header.transportType
       : 'Maritimo',
+  shipmentDate:
+    typeof header?.shipmentDate === 'string' && header.shipmentDate
+      ? header.shipmentDate
+      : new Date().toISOString().slice(0, 10),
 });
 
 const normalizeWorkflowStatus = (value: unknown): ShipmentWorkflowStatus =>

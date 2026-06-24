@@ -1,0 +1,20 @@
+// @ts-check
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  { ignores: ['dist', 'playwright-report', 'test-results', '*.config.*'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  prettier,
+  {
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+    },
+  },
+);

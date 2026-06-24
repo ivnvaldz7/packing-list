@@ -57,6 +57,7 @@ export const useShipmentDocument = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastCreatedItemId, setLastCreatedItemId] = useState<string | null>(null);
   const [library, setLibrary] = useState<StoredDocumentSummary[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -117,6 +118,8 @@ export const useShipmentDocument = () => {
       return;
     }
 
+    setIsSaving(true);
+
     const timeoutId = setTimeout(() => {
       void saveDocument(document)
         .then(() => setActiveDocumentId(document.id))
@@ -130,8 +133,10 @@ export const useShipmentDocument = () => {
             return [...nextLibrary].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
           }),
         )
+        .then(() => setIsSaving(false))
         .catch((saveError: unknown) => {
           setError('No pudimos guardar los cambios en IndexedDB.');
+          setIsSaving(false);
           console.error(saveError);
         });
     }, 600);
@@ -462,6 +467,7 @@ export const useShipmentDocument = () => {
     lastCreatedItemId,
     status,
     error,
+    isSaving,
     updateHeader,
     updateWorkflowStatus,
     createNewDocument,

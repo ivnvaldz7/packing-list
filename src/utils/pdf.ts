@@ -76,7 +76,8 @@ export const exportShipmentDocumentPdf = async (
   metaRow('Factura', document.header.invoiceNumber || '-', margin + halfW, metaY, halfW);
   metaRow('País', document.header.country || '-', margin, metaY + rowH, halfW);
   metaRow('Transporte', document.header.transportType || '-', margin + halfW, metaY + rowH, halfW);
-  metaRow('Dirección', document.header.address || '-', margin, metaY + rowH * 2, contentWidth);
+  metaRow('Embarque', document.header.shipmentDate || '-', margin, metaY + rowH * 2, halfW);
+  metaRow('Dirección', document.header.address || '-', margin + halfW, metaY + rowH * 2, halfW);
 
   let cursorY = metaY + rowH * 3 + 8;
   const totalUnits = pallets.reduce(

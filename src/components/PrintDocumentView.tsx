@@ -53,8 +53,10 @@ export const PrintDocumentView = ({
             <td className="print-meta-val">{document.header.transportType || '-'}</td>
           </tr>
           <tr>
+            <td className="print-meta-lbl">Embarque</td>
+            <td className="print-meta-val">{document.header.shipmentDate || '-'}</td>
             <td className="print-meta-lbl">Dirección</td>
-            <td className="print-meta-val" colSpan={3}>{document.header.address || '-'}</td>
+            <td className="print-meta-val">{document.header.address || '-'}</td>
           </tr>
         </tbody>
       </table>
