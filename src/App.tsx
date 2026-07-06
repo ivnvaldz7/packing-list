@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { DocumentLibrary } from './components/DocumentLibrary';
 import { DocumentHeaderForm } from './components/DocumentHeaderForm';
 import { DocumentSummary } from './components/DocumentSummary';
@@ -6,6 +7,7 @@ import { Layout } from './components/layout/Layout';
 import { PalletLabelPrint } from './components/PalletLabelPrint';
 import { PrintDocumentView } from './components/PrintDocumentView';
 import { useShipmentDocument } from './hooks/useShipmentDocument';
+import { fadeSlideUp, slideHorizontal } from './utils/animations';
 import { formatWeight } from './utils/format';
 import { exportShipmentDocumentPdf } from './utils/pdf';
 import { exportShipmentDocumentXlsx } from './utils/excel';
@@ -13,6 +15,12 @@ import { validateShipmentDocument } from './utils/validation';
 import { CartelesView } from './views/CartelesView';
 import { CargaView } from './views/CargaView';
 import { PreparacionView } from './views/PreparacionView';
+
+const stageOrder: Record<string, number> = {
+  carteles: 0,
+  preparacion: 1,
+  carga: 2,
+};
 
 const App = () => {
   const [activeStage, setActiveStage] = useState<'carteles' | 'preparacion' | 'carga'>('carteles');
@@ -70,6 +78,8 @@ const App = () => {
     };
   }, []);
 
+  const stageDirectionRef = useRef(0);
+
   useEffect(() => {
     if (document.workflowStatus === 'carga' || document.workflowStatus === 'finalizada') {
       setActiveStage('carga');
@@ -80,6 +90,11 @@ const App = () => {
       setActiveStage('preparacion');
     }
   }, [document.id, document.workflowStatus]);
+
+  const prevStageRef = useRef(activeStage);
+  const stageDirection =
+    stageOrder[activeStage] - (stageOrder[prevStageRef.current] ?? stageOrder[activeStage]);
+  prevStageRef.current = activeStage;
 
   const handleStageChange = (nextStage: 'carteles' | 'preparacion' | 'carga') => {
     setActiveStage(nextStage);
@@ -141,22 +156,24 @@ const App = () => {
         totalGrossWeightKg={totals.totalGrossWeightKg}
       />
       <PalletLabelPrint document={document} labelCount={labelCount} />
-      {isLibraryOpen ? (
-        <DocumentLibrary
-          documents={documentLibrary}
-          activeDocumentId={document.id}
-          onClose={() => setIsLibraryOpen(false)}
-          onCreate={() => {
-            createNewDocument();
-            setIsLibraryOpen(false);
-          }}
-          onOpen={(documentId) => {
-            void openStoredDocument(documentId);
-            setIsLibraryOpen(false);
-          }}
-          onDelete={(documentId) => void deleteStoredDocument(documentId)}
-        />
-      ) : null}
+      <AnimatePresence>
+        {isLibraryOpen && (
+          <DocumentLibrary
+            documents={documentLibrary}
+            activeDocumentId={document.id}
+            onClose={() => setIsLibraryOpen(false)}
+            onCreate={() => {
+              createNewDocument();
+              setIsLibraryOpen(false);
+            }}
+            onOpen={(documentId) => {
+              void openStoredDocument(documentId);
+              setIsLibraryOpen(false);
+            }}
+            onDelete={(documentId) => void deleteStoredDocument(documentId)}
+          />
+        )}
+      </AnimatePresence>
 
       <Layout
         activeStage={activeStage}
@@ -180,72 +197,95 @@ const App = () => {
           </div>
         ) : null}
 
-        {/* ─── Carteles stage ─── */}
-        {activeStage === 'carteles' ? (
-          <CartelesView
-            document={document}
-            labelCount={labelCount}
-            onLabelCountChange={setLabelCount}
-          />
-        ) : null}
+        {/* ─── Stage views with AnimatePresence ─── */}
+        <AnimatePresence mode="wait" custom={stageDirection}>
+          <motion.div
+            key={activeStage}
+            custom={stageDirection}
+            variants={slideHorizontal}
+            initial="enter"
+            animate="center"
+            exit="exit"
+          >
+            {activeStage === 'carteles' && (
+              <CartelesView
+                document={document}
+                labelCount={labelCount}
+                onLabelCountChange={setLabelCount}
+              />
+            )}
+
+            {activeStage === 'preparacion' && (
+              <PreparacionView
+                document={document}
+                computedPallets={computedPallets}
+                products={products}
+                lastCreatedItemId={lastCreatedItemId}
+                validation={validation}
+                readOnly={isReadOnly}
+                onAddPallet={addPallet}
+                onUpdatePallet={updatePallet}
+                onRemovePallet={removePallet}
+                onAddItem={(palletId) => addItem(palletId, 'preparacion')}
+                onClonePallet={clonePallet}
+                onSelectProduct={selectProduct}
+                onUpdateItem={(palletId, itemId, field, value) =>
+                  updateItem('preparacion', palletId, itemId, field, value as never)
+                }
+                onRemoveItem={removeItem}
+                onNavigateToCarga={handleNavigateToCarga}
+              />
+            )}
+
+            {activeStage === 'carga' && (
+              <CargaView
+                document={document}
+                computedPallets={computedPallets}
+                products={products}
+                lastCreatedItemId={lastCreatedItemId}
+                activePalletId={activePalletId}
+                validation={validation}
+                readOnly={isReadOnly}
+                onSetActivePallet={setActivePalletId}
+                onAddPallet={addPallet}
+                onUpdatePallet={updatePallet}
+                onRemovePallet={removePallet}
+                onAddItem={(palletId) => addItem(palletId, 'carga')}
+                onClonePallet={clonePallet}
+                onSelectProduct={selectProduct}
+                onUpdateItem={(palletId, itemId, field, value) =>
+                  updateItem('carga', palletId, itemId, field, value as never)
+                }
+                onRemoveItem={removeItem}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {/* ─── Header form (siempre visible) ─── */}
-        <section id="header-section" className="mb-8">
+        <motion.section
+          id="header-section"
+          className="mb-8"
+          variants={fadeSlideUp}
+          initial="hidden"
+          animate="visible"
+        >
           <DocumentHeaderForm
             header={document.header}
             errors={validation.headerErrors}
             onChange={updateHeader}
             readOnly={isReadOnly}
           />
-        </section>
-
-        {/* ─── Preparacion stage ─── */}
-        {activeStage === 'preparacion' ? (
-          <PreparacionView
-            document={document}
-            computedPallets={computedPallets}
-            products={products}
-            lastCreatedItemId={lastCreatedItemId}
-            validation={validation}
-            readOnly={isReadOnly}
-            onAddPallet={addPallet}
-            onUpdatePallet={updatePallet}
-            onRemovePallet={removePallet}
-            onAddItem={(palletId) => addItem(palletId, 'preparacion')}
-            onClonePallet={clonePallet}
-            onSelectProduct={selectProduct}
-            onUpdateItem={(palletId, itemId, field, value) =>
-              updateItem('preparacion', palletId, itemId, field, value as never)
-            }
-            onRemoveItem={removeItem}
-            onNavigateToCarga={handleNavigateToCarga}
-          />
-        ) : (
-          /* ─── Carga stage ─── */
-          <CargaView
-            document={document}
-            computedPallets={computedPallets}
-            products={products}
-            lastCreatedItemId={lastCreatedItemId}
-            activePalletId={activePalletId}
-            validation={validation}
-            readOnly={isReadOnly}
-            onSetActivePallet={setActivePalletId}
-            onAddPallet={addPallet}
-            onUpdatePallet={updatePallet}
-            onRemovePallet={removePallet}
-            onAddItem={(palletId) => addItem(palletId, 'carga')}
-            onClonePallet={clonePallet}
-            onSelectProduct={selectProduct}
-            onUpdateItem={(palletId, itemId, field, value) =>
-              updateItem('carga', palletId, itemId, field, value as never)
-            }
-            onRemoveItem={removeItem}
-          />
-        )}
+        </motion.section>
 
         {/* ─── Summary ─── */}
-        <section id="summary-section" className="mb-8">
+        <motion.section
+          id="summary-section"
+          className="mb-8"
+          variants={fadeSlideUp}
+          initial="hidden"
+          animate="visible"
+        >
           <DocumentSummary
             document={document}
             totalNetWeightKg={totals.totalNetWeightKg}
@@ -253,15 +293,20 @@ const App = () => {
             totalBoxes={totals.totalBoxes}
             isValid={validation.isValid}
           />
-        </section>
+        </motion.section>
 
         {/* ─── Footer ─── */}
-        <footer className="flex items-center justify-between border-t border-stone-200 pt-4 text-sm text-stone-500 dark:border-stone-800 dark:text-stone-400">
+        <motion.footer
+          className="flex items-center justify-between border-t border-stone-200 pt-4 text-sm text-stone-500 dark:border-stone-800 dark:text-stone-400"
+          variants={fadeSlideUp}
+          initial="hidden"
+          animate="visible"
+        >
           <span>{`Paletas: ${document.pallets.length}`}</span>
           <span>{`Cajas: ${totals.totalBoxes}`}</span>
           <span>{`Peso neto total: ${formatWeight(totals.totalNetWeightKg)}`}</span>
           <span>{`Peso bruto total: ${formatWeight(totals.totalGrossWeightKg)}`}</span>
-        </footer>
+        </motion.footer>
       </Layout>
     </>
   );
