@@ -28,11 +28,11 @@ describe('factories', () => {
       const pallets: Partial<Pallet>[] = [
         { label: 'Paleta 1' },
         { label: 'Custom Name' },
-        { label: 'Paleta 3' }
+        { label: 'Paleta 3' },
       ];
 
       const result = renumberAutomaticPalletLabels(pallets as Pallet[]);
-      
+
       expect(result[0].label).toBe('Paleta 1');
       expect(result[1].label).toBe('Custom Name'); // Preserved
       expect(result[2].label).toBe('Paleta 3'); // Renumbered to match its position (index 2 -> Paleta 3)

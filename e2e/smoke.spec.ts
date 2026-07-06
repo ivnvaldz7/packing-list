@@ -109,4 +109,44 @@ test.describe('App smoke tests', () => {
     // Total paletas inside the summary section
     await expect(page.locator('#summary-section').getByText('Total paletas')).toBeVisible();
   });
+
+  test('data persists after page reload', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Cargando borrador local')).not.toBeVisible({ timeout: 10000 });
+
+    // Navigate to preparación to add data
+    await page.getByRole('button', { name: 'Preparación', exact: true }).click();
+    await expect(page.getByText('Paleta 01')).toBeVisible();
+
+    // Set an invoice number (type the 4-digit suffix)
+    await page.locator('#header-section input[placeholder="0005"]').fill('0001');
+
+    // Select a country
+    await page.locator('#header-section').getByLabel('País').selectOption('PANAMA');
+
+    // Add a second pallet
+    await page.getByRole('button', { name: 'Añadir paleta' }).click();
+    await expect(page.getByText('Paleta 02')).toBeVisible();
+
+    // Wait for IndexedDB auto-save (debounced at 600ms)
+    await page.waitForTimeout(1500);
+
+    // Reload the page — simulates closing and reopening
+    await page.reload();
+
+    // Wait for IndexedDB loading to finish
+    await expect(page.getByText('Cargando borrador local')).not.toBeVisible({ timeout: 10000 });
+
+    // Verify invoice number persisted (Topbar subtitle — scope to banner/header)
+    await expect(page.getByRole('banner').getByText('E-0005-00000001')).toBeVisible();
+
+    // Navigate to preparación to check pallets
+    await page.getByRole('button', { name: 'Preparación', exact: true }).click();
+
+    // Verify second pallet persisted
+    await expect(page.getByText('Paleta 02')).toBeVisible();
+
+    // Verify country persisted (header section)
+    await expect(page.locator('#header-section').getByLabel('País')).toHaveValue('PANAMA');
+  });
 });

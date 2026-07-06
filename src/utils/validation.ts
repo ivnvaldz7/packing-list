@@ -54,14 +54,17 @@ const validatePallet = (pallet: Pallet, mode: 'preparacion' | 'carga'): PalletVa
   }, {});
 
   if (mode === 'carga') {
-    const groupedItems = pallet.items.reduce<Record<string, Pallet['items']>>((accumulator, item) => {
-      if (isBlank(item.productId)) {
-        return accumulator;
-      }
+    const groupedItems = pallet.items.reduce<Record<string, Pallet['items']>>(
+      (accumulator, item) => {
+        if (isBlank(item.productId)) {
+          return accumulator;
+        }
 
-      accumulator[item.planId] = [...(accumulator[item.planId] ?? []), item];
-      return accumulator;
-    }, {});
+        accumulator[item.planId] = [...(accumulator[item.planId] ?? []), item];
+        return accumulator;
+      },
+      {},
+    );
 
     Object.values(groupedItems).forEach((group) => {
       const plannedQuantity = group[0]?.plannedQuantity ?? 0;
@@ -75,7 +78,9 @@ const validatePallet = (pallet: Pallet, mode: 'preparacion' | 'carga'): PalletVa
       const difference = plannedQuantity - actualQuantity;
 
       const message =
-        difference > 0 ? `Faltan ${difference} frascos.` : `Sobran ${Math.abs(difference)} frascos.`;
+        difference > 0
+          ? `Faltan ${difference} frascos.`
+          : `Sobran ${Math.abs(difference)} frascos.`;
 
       group.forEach((item) => {
         itemErrors[item.id] = {

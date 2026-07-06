@@ -156,9 +156,9 @@ export const exportShipmentDocumentPdf = async (
       },
     });
 
-    cursorY = (
-      pdf as InstanceType<typeof jsPDF> & { lastAutoTable?: { finalY?: number } }
-    ).lastAutoTable?.finalY ?? cursorY;
+    cursorY =
+      (pdf as InstanceType<typeof jsPDF> & { lastAutoTable?: { finalY?: number } }).lastAutoTable
+        ?.finalY ?? cursorY;
     cursorY += 6;
   });
 

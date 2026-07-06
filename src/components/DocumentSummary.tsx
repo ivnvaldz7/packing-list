@@ -33,7 +33,10 @@ export const DocumentSummary = ({
         Resumen consolidado de carga
       </h3>
       <div className="grid grid-cols-2 gap-x-8 gap-y-3 md:grid-cols-3">
-        <SummaryRow label="Total paletas" value={String(document.pallets.length).padStart(2, '0')} />
+        <SummaryRow
+          label="Total paletas"
+          value={String(document.pallets.length).padStart(2, '0')}
+        />
         <SummaryRow label="Total cajas" value={String(totalBoxes)} />
         <SummaryRow label="Total unidades" value={String(totalUnits)} />
         <SummaryRow label="Peso neto total" value={formatWeight(totalNetWeightKg)} />
@@ -73,6 +76,8 @@ type SummaryRowProps = {
 const SummaryRow = ({ label, value }: SummaryRowProps) => (
   <div className="flex items-center justify-between border-b border-stone-100 pb-2 dark:border-stone-800">
     <span className="text-sm text-stone-500 dark:text-stone-400">{label}</span>
-    <strong className="font-mono text-sm font-semibold text-stone-800 dark:text-stone-100">{value}</strong>
+    <strong className="font-mono text-sm font-semibold text-stone-800 dark:text-stone-100">
+      {value}
+    </strong>
   </div>
 );

@@ -1,7 +1,14 @@
 /**
  * Shared test utilities: mock factories, render helpers.
  */
-import type { DocumentHeader, Pallet, PalletComputed, PalletItem, Product, ShipmentDocument } from '../types';
+import type {
+  DocumentHeader,
+  Pallet,
+  PalletComputed,
+  PalletItem,
+  Product,
+  ShipmentDocument,
+} from '../types';
 
 /* ─── Factory helpers ─── */
 

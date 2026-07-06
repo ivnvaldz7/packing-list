@@ -19,6 +19,7 @@
 | PANAMA | IMPORTACIONES UNIVERSO ZONA LIBRE S.A | FREE ZONE, COLON - PANAMA |
 | COLOMBIA | LABORATORIOS AUROFARMA SAS | KM 13 VIA OCCIDENTE FUNZA BODEGAS ITALCOL, CUNDINAMARCA-COLOMBIA |
 | PARAGUAY | AGRO VETERINARIA TOTAL SRL | LUIS ALBERTO HERRERA 477, ASUNCION-PARAGUAY |
+| PARAGUAY_GENETYX | GENETYX | BERNARDINO CABALLERO 1515, MARIANO ROQUE ALONSO-PARAGUAY |
 | BOLIVIA | VETERQUIMICA BOLIVIANA SRL | AVENIDA PIRAY 493, SANTA CRUZ DE LA SIERRA - BOLIVIA |
 | ECUADOR | QUIMICA SUIZA INDUSTRIAL DEL ECUADOR | AV. GALO PLAZA LASSO 10640 Y MANUEL ZAMBRANO, QUITO-ECUADOR |
 
@@ -43,7 +44,9 @@
 
 - React + TypeScript + Vite
 - IndexedDB para persistencia local
-- CSS con variables para theming (light/dark)
+- CSS con variables para theming (light/dark) + Tailwind CSS v4
+- Vitest para tests unitarios
+- Playwright para tests e2e
 - Estructura de componentes limpia
 
 ## Estado del repositorio
@@ -63,3 +66,24 @@
 - simplicidad operativa sobre complejidad técnica
 - documentación actualizada del proyecto real
 - workflow lineal: carteles → preparación → carga → finalized
+
+## Checklist de verificación visual pre-deploy
+
+### Carteles
+- [ ] Preview muestra datos correctos según país seleccionado
+- [ ] Cantidad de carteles seleccionable (n/X)
+- [ ] Formato A4 landscape
+
+### Packing List
+- [ ] Header con país, factura, tipo de transporte
+- [ ] Múltiples pallets con items
+- [ ] Productos con código, nombre, lote, producción
+
+### Impresión / Exportación
+- [ ] Print preview: carteles en landscape, packing list en portrait
+- [ ] PDF export: contenido completo, encoding correcto
+- [ ] XLSX export: columnas correctas, datos por pallet
+
+### Estados
+- [ ] Dark mode: todos los componentes visibles
+- [ ] Documento finalizado: inputs readonly, botones de edición ocultos

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeShipmentDocument } from './document';
 import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
-import type { ShipmentDocument } from '../types';
+import type { Pallet, ShipmentDocument } from '../types';
 
 describe('document normalizer', () => {
   it('should preserve custom pallet tare weight instead of overwriting with constant', () => {
@@ -12,9 +12,9 @@ describe('document normalizer', () => {
           id: 'p1',
           label: 'Test',
           palletTareWeightKg: customWeight,
-          items: []
-        }
-      ]
+          items: [],
+        },
+      ],
     };
 
     const normalized = normalizeShipmentDocument(document as ShipmentDocument);
@@ -27,9 +27,9 @@ describe('document normalizer', () => {
         {
           id: 'p1',
           label: 'Test',
-          items: []
-        } as any
-      ]
+          items: [],
+        } as unknown as Pallet,
+      ],
     };
 
     const normalized = normalizeShipmentDocument(document as ShipmentDocument);
@@ -38,7 +38,7 @@ describe('document normalizer', () => {
 
   it('should ensure there is at least one pallet and one item', () => {
     const document: Partial<ShipmentDocument> = {
-      pallets: []
+      pallets: [],
     };
 
     const normalized = normalizeShipmentDocument(document as ShipmentDocument);

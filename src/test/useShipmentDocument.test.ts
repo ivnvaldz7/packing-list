@@ -5,8 +5,8 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useShipmentDocument } from '../hooks/useShipmentDocument';
-import { createMockDocument, createMockHeader, createMockProduct } from './test-utils';
-import type { ShipmentDocument } from '../types';
+import { createMockDocument } from './test-utils';
+import type { Pallet, ShipmentDocument, ShipmentWorkflowStatus } from '../types';
 
 /* ══════════════════════════════════════════
    IndexedDB mock
@@ -27,8 +27,14 @@ vi.mock('../db/indexedDb', () => mockDb);
    Shared test data
    ══════════════════════════════════════════ */
 
-const storedDocument = createMockDocument(undefined, { id: 'stored-1', updatedAt: '2026-06-23T10:00:00.000Z' });
-const secondDocument = createMockDocument(undefined, { id: 'stored-2', updatedAt: '2026-06-22T10:00:00.000Z' });
+const storedDocument = createMockDocument(undefined, {
+  id: 'stored-1',
+  updatedAt: '2026-06-23T10:00:00.000Z',
+});
+const secondDocument = createMockDocument(undefined, {
+  id: 'stored-2',
+  updatedAt: '2026-06-22T10:00:00.000Z',
+});
 
 /* ══════════════════════════════════════════
    Helpers
@@ -105,6 +111,43 @@ describe('useShipmentDocument', () => {
       expect(result.current.error).toBeNull();
     });
 
+    it('openStoredDocument returns the workflowStatus of the loaded document', async () => {
+      mockDb.loadDocument.mockResolvedValue(secondDocument);
+      const { result } = await renderHookWithReady();
+
+      let returnedStatus: ShipmentWorkflowStatus | undefined;
+      await act(async () => {
+        returnedStatus = await result.current.openStoredDocument('stored-2');
+      });
+
+      expect(returnedStatus).toBe(secondDocument.workflowStatus);
+    });
+
+    it('openStoredDocument returns undefined when document is not found', async () => {
+      mockDb.loadDocument.mockResolvedValue(null);
+      const { result } = await renderHookWithReady();
+
+      let returnedStatus: ShipmentWorkflowStatus | undefined;
+      await act(async () => {
+        returnedStatus = await result.current.openStoredDocument('nonexistent');
+      });
+
+      expect(returnedStatus).toBeUndefined();
+    });
+
+    it('openStoredDocument returns undefined when loadDocument throws', async () => {
+      mockDb.loadDocument.mockRejectedValue(new Error('DB error'));
+      const { result } = await renderHookWithReady();
+
+      let returnedStatus: ShipmentWorkflowStatus | undefined;
+      await act(async () => {
+        returnedStatus = await result.current.openStoredDocument('stored-2');
+      });
+
+      expect(returnedStatus).toBeUndefined();
+      expect(result.current.error).toBe('No pudimos abrir la lista seleccionada.');
+    });
+
     it('openStoredDocument sets error when document is not found', async () => {
       mockDb.loadDocument.mockResolvedValue(null);
       const { result } = await renderHookWithReady();
@@ -152,7 +195,7 @@ describe('useShipmentDocument', () => {
         pallets: [
           { id: 'p1', label: 'Paleta 01', palletTareWeightKg: 15, items: [] },
           { id: 'p2', label: 'Paleta 02', palletTareWeightKg: 15, items: [] },
-        ] as any,
+        ] as Pallet[],
       });
       mockDb.loadDocuments.mockResolvedValue([docWithTwoPallets]);
       mockDb.getActiveDocumentId.mockResolvedValue('multi');
@@ -233,6 +276,21 @@ describe('useShipmentDocument', () => {
       expect(pallet?.items).toHaveLength(1); // unchanged
     });
 
+    it('updateItem updates productionNumber field', async () => {
+      const { result } = await renderHookWithReady();
+      const palletId = result.current.document.pallets[0].id;
+      const itemId = result.current.document.pallets[0].items[0].id;
+
+      act(() =>
+        result.current.updateItem('preparacion', palletId, itemId, 'productionNumber', 'LOT-001'),
+      );
+
+      const item = result.current.document.pallets
+        .find((p) => p.id === palletId)!
+        .items.find((i) => i.id === itemId);
+      expect(item?.productionNumber).toBe('LOT-001');
+    });
+
     it('updateItem updates quantity in preparacion mode and sets plannedQuantity', async () => {
       const { result } = await renderHookWithReady();
       const palletId = result.current.document.pallets[0].id;
@@ -241,8 +299,8 @@ describe('useShipmentDocument', () => {
       act(() => result.current.updateItem('preparacion', palletId, itemId, 'quantity', 50));
 
       const item = result.current.document.pallets
-        .find((p) => p.id === palletId)!.items
-        .find((i) => i.id === itemId);
+        .find((p) => p.id === palletId)!
+        .items.find((i) => i.id === itemId);
       expect(item?.quantity).toBe(50);
       expect(item?.plannedQuantity).toBe(50);
     });
@@ -262,7 +320,7 @@ describe('useShipmentDocument', () => {
     it('updateHeader updates country and presets', async () => {
       const { result } = await renderHookWithReady();
 
-      act(() => result.current.updateHeader('country', 'COLOMBIA' as any));
+      act(() => result.current.updateHeader('country', 'COLOMBIA'));
 
       expect(result.current.document.header.country).toBe('COLOMBIA');
       expect(result.current.document.header.laboratoryName).toBe('LABORATORIOS AUROFARMA SAS');
@@ -288,8 +346,8 @@ describe('useShipmentDocument', () => {
       act(() => result.current.selectProduct(palletId, itemId, 'am0138-amantina-250-ml'));
 
       const item = result.current.document.pallets
-        .find((p) => p.id === palletId)!.items
-        .find((i) => i.id === itemId);
+        .find((p) => p.id === palletId)!
+        .items.find((i) => i.id === itemId);
       expect(item?.sku).toBe('AM0138');
       expect(item?.description).toBe('AMANTINA 250 ML');
       expect(item?.unitsPerBox).toBe(15);
@@ -304,8 +362,8 @@ describe('useShipmentDocument', () => {
 
       // Item should remain unchanged (still the mock item with sku 'P001')
       const item = result.current.document.pallets
-        .find((p) => p.id === palletId)!.items
-        .find((i) => i.id === itemId);
+        .find((p) => p.id === palletId)!
+        .items.find((i) => i.id === itemId);
       expect(item?.sku).toBe('P001');
     });
   });

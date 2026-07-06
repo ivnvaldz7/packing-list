@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ─── Dark mode: respeta el atributo data-theme actual ─── */
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -44,8 +44,8 @@
   --color-info: #3b82f6;
 
   /* ─── Tipografía ─── */
-  --font-family-sans: "Onest", "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
-  --font-family-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-family-sans: 'Onest', 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* ─── Animaciones ─── */
   --animate-stage-in: stage-fade-in 260ms ease;
@@ -79,7 +79,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  :root[data-theme="dark"] body {
+  :root[data-theme='dark'] body {
     background: var(--color-stone-950);
   }
 }

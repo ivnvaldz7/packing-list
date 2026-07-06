@@ -1,4 +1,4 @@
-import type { ItemValidation, PalletComputed, Product, ShipmentDocument, ShipmentValidation } from '../types';
+import type { PalletComputed, Product, ShipmentDocument, ShipmentValidation } from '../types';
 import { PalletCard } from '../components/PalletCard';
 
 type PreparacionViewProps = {
@@ -101,8 +101,18 @@ export const PreparacionView = ({
       {!hasPallets ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-stone-300 bg-white/50 px-6 py-16 text-center dark:border-stone-600 dark:bg-stone-900/50">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800">
-            <svg className="h-6 w-6 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            <svg
+              className="h-6 w-6 text-stone-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
             </svg>
           </div>
           <h3 className="mb-1 text-sm font-semibold text-stone-600 dark:text-stone-300">
@@ -130,7 +140,8 @@ export const PreparacionView = ({
                   products={products}
                   autoFocusItemId={lastCreatedItemId}
                   itemErrors={
-                    validation.palletErrors.find((entry) => entry.palletId === pallet.id)?.itemErrors ?? {}
+                    validation.palletErrors.find((entry) => entry.palletId === pallet.id)
+                      ?.itemErrors ?? {}
                   }
                   index={index}
                   canRemove={computedPallets.length > 1}

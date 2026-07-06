@@ -4,7 +4,9 @@ import { Field, InputField, SelectField } from './Field';
 
 const INVOICE_PREFIX = 'E-0005-0000';
 const getInvoiceSuffix = (value: string): string =>
-  value.startsWith(INVOICE_PREFIX) ? value.slice(INVOICE_PREFIX.length) : value.replace(/\D/g, '').slice(-4);
+  value.startsWith(INVOICE_PREFIX)
+    ? value.slice(INVOICE_PREFIX.length)
+    : value.replace(/\D/g, '').slice(-4);
 
 type DocumentHeaderFormProps = {
   header: DocumentHeader;
@@ -13,7 +15,12 @@ type DocumentHeaderFormProps = {
   readOnly?: boolean;
 };
 
-export const DocumentHeaderForm = ({ header, errors, onChange, readOnly = false }: DocumentHeaderFormProps) => {
+export const DocumentHeaderForm = ({
+  header,
+  errors,
+  onChange,
+  readOnly = false,
+}: DocumentHeaderFormProps) => {
   const selectedCountryPreset = getCountryPresetValue(header);
 
   return (

@@ -10,7 +10,7 @@
   --brand-green-dark: #007a36;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   color-scheme: dark;
   --brand-green: #22c768;
   --brand-green-dark: #8ef0b3;
@@ -42,7 +42,7 @@
 .print-document {
   color: #1a1a1a;
   background: #fff;
-  font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
   font-size: 9.5px;
   line-height: 1.45;
 }
@@ -138,7 +138,7 @@
 }
 
 .print-tbl-cell--mono {
-  font-family: "SF Mono", "Consolas", "Menlo", monospace;
+  font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
   font-size: 8.5px;
   white-space: nowrap;
 }
@@ -391,6 +391,6 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }

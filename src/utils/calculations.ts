@@ -16,9 +16,7 @@ export const calculateComputedItem = (item: PalletItem): PalletItemComputed => (
 
 export const calculateComputedPallet = (pallet: Pallet): PalletComputed => {
   const computedItems = pallet.items.map(calculateComputedItem);
-  const totalNetWeightKg = roundTo3(
-    computedItems.reduce((sum, item) => sum + item.netWeightKg, 0),
-  );
+  const totalNetWeightKg = roundTo3(computedItems.reduce((sum, item) => sum + item.netWeightKg, 0));
   const totalGrossWeightKg = roundTo3(totalNetWeightKg + pallet.palletTareWeightKg);
 
   return {
@@ -29,7 +27,9 @@ export const calculateComputedPallet = (pallet: Pallet): PalletComputed => {
   };
 };
 
-export const calculateDocumentTotals = (pallets: Pallet[]): {
+export const calculateDocumentTotals = (
+  pallets: Pallet[],
+): {
   totalNetWeightKg: number;
   totalGrossWeightKg: number;
   totalBoxes: number;
@@ -43,9 +43,9 @@ export const calculateDocumentTotals = (pallets: Pallet[]): {
     totalGrossWeightKg: roundTo3(
       computedPallets.reduce((sum, pallet) => sum + pallet.totalGrossWeightKg, 0),
     ),
-    totalBoxes: computedPallets.reduce((sum, pallet) =>
-      sum + pallet.items.reduce((itemSum, item) => itemSum + item.boxesCount, 0),
-    0),
+    totalBoxes: computedPallets.reduce(
+      (sum, pallet) => sum + pallet.items.reduce((itemSum, item) => itemSum + item.boxesCount, 0),
+      0,
+    ),
   };
 };
-

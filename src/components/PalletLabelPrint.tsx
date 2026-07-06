@@ -30,9 +30,7 @@ export const PalletLabelPrint = ({ document, labelCount }: PalletLabelPrintProps
               {/* ─── Remitente ─── */}
               <div className="print-pallet-label-block">
                 <p className="print-pallet-label-subtitle">Remitente</p>
-                <p className="print-pallet-label-value">
-                  {document.header.laboratoryName}
-                </p>
+                <p className="print-pallet-label-value">{document.header.laboratoryName}</p>
                 <p className="print-pallet-label-detail">{document.header.address}</p>
               </div>
 

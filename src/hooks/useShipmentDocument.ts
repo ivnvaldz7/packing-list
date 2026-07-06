@@ -65,7 +65,9 @@ export const useShipmentDocument = () => {
     const bootstrap = async (): Promise<void> => {
       try {
         const storedDocuments = sortByUpdatedAt(
-          (await loadDocuments()).map((storedDocument) => normalizeShipmentDocument(storedDocument)),
+          (await loadDocuments()).map((storedDocument) =>
+            normalizeShipmentDocument(storedDocument),
+          ),
         );
 
         if (!mounted) {
@@ -118,9 +120,8 @@ export const useShipmentDocument = () => {
       return;
     }
 
-    setIsSaving(true);
-
     const timeoutId = setTimeout(() => {
+      setIsSaving(true);
       void saveDocument(document)
         .then(() => setActiveDocumentId(document.id))
         .then(() =>
@@ -130,7 +131,9 @@ export const useShipmentDocument = () => {
               ? currentLibrary.map((entry) => (entry.id === document.id ? nextSummary : entry))
               : [nextSummary, ...currentLibrary];
 
-            return [...nextLibrary].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+            return [...nextLibrary].sort((left, right) =>
+              right.updatedAt.localeCompare(left.updatedAt),
+            );
           }),
         )
         .then(() => setIsSaving(false))
@@ -144,7 +147,10 @@ export const useShipmentDocument = () => {
     return () => clearTimeout(timeoutId);
   }, [document, status]);
 
-  const updateHeader = <K extends keyof DocumentHeader>(field: K, value: DocumentHeader[K]): void => {
+  const updateHeader = <K extends keyof DocumentHeader>(
+    field: K,
+    value: DocumentHeader[K],
+  ): void => {
     setDocument((current) => {
       if (field === 'country') {
         const countryValue = value as DocumentHeader['country'];
@@ -179,20 +185,25 @@ export const useShipmentDocument = () => {
     setError(null);
   };
 
-  const openStoredDocument = async (documentId: string): Promise<void> => {
+  const openStoredDocument = async (
+    documentId: string,
+  ): Promise<ShipmentWorkflowStatus | undefined> => {
     try {
       const storedDocument = await loadDocument(documentId);
       if (!storedDocument) {
         setError('No encontramos la lista seleccionada.');
-        return;
+        return undefined;
       }
 
-      setDocument(normalizeShipmentDocument(storedDocument));
+      const normalized = normalizeShipmentDocument(storedDocument);
+      setDocument(normalized);
       setLastCreatedItemId(null);
       setError(null);
+      return normalized.workflowStatus;
     } catch (loadError) {
       setError('No pudimos abrir la lista seleccionada.');
       console.error(loadError);
+      return undefined;
     }
   };
 
@@ -236,7 +247,11 @@ export const useShipmentDocument = () => {
     );
   };
 
-  const updatePallet = <K extends keyof Pallet>(palletId: string, field: K, value: Pallet[K]): void => {
+  const updatePallet = <K extends keyof Pallet>(
+    palletId: string,
+    field: K,
+    value: Pallet[K],
+  ): void => {
     setDocument((current) =>
       touch({
         ...current,
@@ -280,7 +295,10 @@ export const useShipmentDocument = () => {
 
           if (mode === 'carga') {
             const planSummaries = pallet.items.reduce<
-              Record<string, { plannedQuantity: number; actualQuantity: number; lastItem: PalletItem }>
+              Record<
+                string,
+                { plannedQuantity: number; actualQuantity: number; lastItem: PalletItem }
+              >
             >((accumulator, item) => {
               if (!item.productId) {
                 return accumulator;
@@ -368,12 +386,12 @@ export const useShipmentDocument = () => {
     });
   };
 
-  const updateItem = <K extends keyof PalletItem>(
+  const updateItem = (
     mode: 'preparacion' | 'carga',
     palletId: string,
     itemId: string,
-    field: K,
-    value: PalletItem[K],
+    field: 'productionNumber' | 'quantity',
+    value: string | number,
   ): void => {
     setDocument((current) =>
       touch({
@@ -455,7 +473,10 @@ export const useShipmentDocument = () => {
     );
   };
 
-  const computedPallets = useMemo(() => document.pallets.map(calculateComputedPallet), [document.pallets]);
+  const computedPallets = useMemo(
+    () => document.pallets.map(calculateComputedPallet),
+    [document.pallets],
+  );
   const totals = useMemo(() => calculateDocumentTotals(document.pallets), [document.pallets]);
 
   return {

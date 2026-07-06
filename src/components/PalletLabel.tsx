@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { ShipmentDocument } from '../types';
 
 /* ─── Helpers ─── */
@@ -76,9 +76,7 @@ export const PalletLabel = ({ document, palletIndex, totalPallets }: PalletLabel
           <p className="mt-1 text-base font-bold uppercase text-stone-800 dark:text-stone-100">
             {DESTINATARIO_FIJO}
           </p>
-          <p className="text-sm text-stone-500 dark:text-stone-400">
-            {DESTINATARIO_DIRECCION}
-          </p>
+          <p className="text-sm text-stone-500 dark:text-stone-400">{DESTINATARIO_DIRECCION}</p>
         </div>
 
         <div className="flex-1" />
@@ -106,7 +104,12 @@ type PalletLabelsProps = {
   onPrint?: () => void;
 };
 
-export const PalletLabels = ({ document, labelCount, onLabelCountChange, onPrint }: PalletLabelsProps) => {
+export const PalletLabels = ({
+  document,
+  labelCount,
+  onLabelCountChange,
+  onPrint,
+}: PalletLabelsProps) => {
   const [inputValue, setInputValue] = useState(String(labelCount));
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -139,7 +142,9 @@ export const PalletLabels = ({ document, labelCount, onLabelCountChange, onPrint
   // Reset current index si se reduce la cantidad
   useEffect(() => {
     if (currentIndex >= labelCount) {
-      setCurrentIndex(Math.max(0, labelCount - 1));
+      requestAnimationFrame(() => {
+        setCurrentIndex(Math.max(0, labelCount - 1));
+      });
     }
   }, [labelCount, currentIndex]);
 
@@ -161,7 +166,10 @@ export const PalletLabels = ({ document, labelCount, onLabelCountChange, onPrint
       {/* ─── Controls ─── */}
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="label-count" className="text-sm font-medium text-stone-700 dark:text-stone-300">
+          <label
+            htmlFor="label-count"
+            className="text-sm font-medium text-stone-700 dark:text-stone-300"
+          >
             Cantidad de carteles
           </label>
           <div className="flex items-center overflow-hidden rounded-lg border border-stone-300 dark:border-stone-600">
@@ -221,7 +229,13 @@ export const PalletLabels = ({ document, labelCount, onLabelCountChange, onPrint
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 text-stone-600 transition-all hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800"
             aria-label="Anterior"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -237,7 +251,13 @@ export const PalletLabels = ({ document, labelCount, onLabelCountChange, onPrint
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 text-stone-600 transition-all hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800"
             aria-label="Siguiente"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>

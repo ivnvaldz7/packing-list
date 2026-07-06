@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { PalletItem, Pallet } from '../types';
-import { calculateComputedPallet, calculateDocumentTotals, calculateItemBoxes, calculateItemNetWeight } from './calculations';
+import {
+  calculateComputedPallet,
+  calculateDocumentTotals,
+  calculateItemBoxes,
+  calculateItemNetWeight,
+} from './calculations';
 
 describe('calculations', () => {
   const createMockItem = (overrides: Partial<PalletItem> = {}): PalletItem => ({
@@ -64,7 +69,7 @@ describe('calculations', () => {
         items: [
           createMockItem({ quantity: 24, unitsPerBox: 12, weightPerBoxKg: 2.5 }), // 5kg
           createMockItem({ id: '2', quantity: 12, unitsPerBox: 12, weightPerBoxKg: 1.2 }), // 1.2kg
-        ]
+        ],
       });
 
       const computed = calculateComputedPallet(pallet);
@@ -78,12 +83,12 @@ describe('calculations', () => {
       const pallets: Pallet[] = [
         createMockPallet({
           palletTareWeightKg: 10,
-          items: [createMockItem({ quantity: 24, unitsPerBox: 12, weightPerBoxKg: 2.5 })] // 2 boxes, 5kg net
+          items: [createMockItem({ quantity: 24, unitsPerBox: 12, weightPerBoxKg: 2.5 })], // 2 boxes, 5kg net
         }),
         createMockPallet({
           palletTareWeightKg: 10,
-          items: [createMockItem({ id: '3', quantity: 36, unitsPerBox: 12, weightPerBoxKg: 2.5 })] // 3 boxes, 7.5kg net
-        })
+          items: [createMockItem({ id: '3', quantity: 36, unitsPerBox: 12, weightPerBoxKg: 2.5 })], // 3 boxes, 7.5kg net
+        }),
       ];
 
       const totals = calculateDocumentTotals(pallets);

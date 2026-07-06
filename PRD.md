@@ -2,7 +2,7 @@
 
 ## 1. Resumen
 
-Sistema web para gestionar packing lists de exportación de productos veterinarios a 5 países de Latinoamérica, incluyendo generación automática de carteles para pallets.
+Sistema web para gestionar packing lists de exportación de productos veterinarios a 6 países de Latinoamérica, incluyendo generación automática de carteles para pallets.
 
 ## 2. Problema
 
@@ -28,7 +28,7 @@ El proceso actual de generación de carteles y packing lists es manual, propenso
 ## 5. Alcance MVP
 
 ### Gestión de países
-- 5 países preconfigurados: Panamá, Colombia, Paraguay, Bolivia, Ecuador
+- 6 presets de país preconfigurados: Panamá, Colombia, Paraguay (2 presets), Bolivia, Ecuador
 - Datos de remitente autocompletados según selección
 
 ### Carteles para pallets
@@ -49,6 +49,9 @@ El proceso actual de generación de carteles y packing lists es manual, propenso
 3. **Carga** - Completar lotes y cantidades reales
 4. **Finalizada** - Documento cerrado para impresión
 
+### Exportación
+- Exportación a XLSX implementada como utilidad adicional
+
 ### Persistencia
 - IndexedDB para guardar documentos localmente
 - Historial de documentos guardados
@@ -59,7 +62,6 @@ El proceso actual de generación de carteles y packing lists es manual, propenso
 - Múltiples usuarios y permisos
 - Integración con sistemas de transporte
 - Facturación electrónica
-- Exportación a otros formatos (Excel, etc.)
 
 ## 7. Requisitos no funcionales
 
@@ -80,6 +82,7 @@ CONDARCO 3073, CIUDAD DE BUENOS AIRES, ARGENTINA
 | PANAMA | IMPORTACIONES UNIVERSO ZONA LIBRE S.A | FREE ZONE, COLON - PANAMA |
 | COLOMBIA | LABORATORIOS AUROFARMA SAS | KM 13 VIA OCCIDENTE FUNZA BODEGAS ITALCOL, CUNDINAMARCA-COLOMBIA |
 | PARAGUAY | AGRO VETERINARIA TOTAL SRL | LUIS ALBERTO HERRERA 477, ASUNCION-PARAGUAY |
+| PARAGUAY_GENETYX | GENETYX | BERNARDINO CABALLERO 1515, MARIANO ROQUE ALONSO-PARAGUAY |
 | BOLIVIA | VETERQUIMICA BOLIVIANA SRL | AVENIDA PIRAY 493, SANTA CRUZ DE LA SIERRA - BOLIVIA |
 | ECUADOR | QUIMICA SUIZA INDUSTRIAL DEL ECUADOR | AV. GALO PLAZA LASSO 10640 Y MANUEL ZAMBRANO, QUITO-ECUADOR |
 

@@ -23,7 +23,8 @@ const openDatabase = async (): Promise<IDBDatabase> => {
           const transaction = tempDb.transaction(DOCUMENTS_STORE, 'readonly');
           const store = transaction.objectStore(DOCUMENTS_STORE);
           const legacyRequest = store.get(LEGACY_DOCUMENT_KEY);
-          legacyRequest.onsuccess = () => resolve(legacyRequest.result as ShipmentDocument | undefined);
+          legacyRequest.onsuccess = () =>
+            resolve(legacyRequest.result as ShipmentDocument | undefined);
           legacyRequest.onerror = () => resolve(undefined);
         });
       }
@@ -93,7 +94,8 @@ export const loadDocuments = async (): Promise<ShipmentDocument[]> => {
     const request = store.getAll();
 
     request.onsuccess = () => resolve((request.result as ShipmentDocument[] | undefined) ?? []);
-    request.onerror = () => reject(request.error ?? new Error('No se pudieron leer los documentos.'));
+    request.onerror = () =>
+      reject(request.error ?? new Error('No se pudieron leer los documentos.'));
   });
 };
 
@@ -149,7 +151,8 @@ export const getActiveDocumentId = async (): Promise<string | null> => {
     const request = store.get(ACTIVE_DOCUMENT_KEY);
 
     request.onsuccess = () => resolve((request.result as string | undefined) ?? null);
-    request.onerror = () => reject(request.error ?? new Error('No se pudo leer el documento activo.'));
+    request.onerror = () =>
+      reject(request.error ?? new Error('No se pudo leer el documento activo.'));
   });
 };
 

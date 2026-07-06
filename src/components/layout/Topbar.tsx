@@ -1,4 +1,12 @@
-import { IconSave, IconPrinter, IconSun, IconMoon, IconPlus, IconList, IconDownload } from './Icons';
+import {
+  IconSave,
+  IconPrinter,
+  IconSun,
+  IconMoon,
+  IconPlus,
+  IconList,
+  IconDownload,
+} from './Icons';
 
 type TopbarProps = {
   title: string;
@@ -13,7 +21,18 @@ type TopbarProps = {
   onThemeToggle: () => void;
 };
 
-export const Topbar = ({ title, subtitle, isSaving, onSave, onPrint, onExportExcel, onNew, onOpenLibrary, theme, onThemeToggle }: TopbarProps) => {
+export const Topbar = ({
+  title,
+  subtitle,
+  isSaving,
+  onSave,
+  onPrint,
+  onExportExcel,
+  onNew,
+  onOpenLibrary,
+  theme,
+  onThemeToggle,
+}: TopbarProps) => {
   const btnClass =
     'flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 transition-all duration-150 hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200';
 
@@ -39,9 +58,7 @@ export const Topbar = ({ title, subtitle, isSaving, onSave, onPrint, onExportExc
         {/* ─── Autosave indicator ─── */}
         <span
           className={`flex items-center gap-1.5 text-[11px] font-medium transition-all duration-300 ${
-            isSaving
-              ? 'text-amber-500 opacity-100'
-              : 'text-emerald-600 opacity-100'
+            isSaving ? 'text-amber-500 opacity-100' : 'text-emerald-600 opacity-100'
           }`}
         >
           <span

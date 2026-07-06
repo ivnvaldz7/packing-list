@@ -8,13 +8,9 @@ type FieldProps = {
 
 export const Field = ({ label, children, error }: FieldProps) => (
   <label className="flex flex-col gap-1.5">
-    <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
-      {label}
-    </span>
+    <span className="text-sm font-medium text-stone-700 dark:text-stone-300">{label}</span>
     {children}
-    {error ? (
-      <small className="text-xs text-red-500 dark:text-red-400">{error}</small>
-    ) : null}
+    {error ? <small className="text-xs text-red-500 dark:text-red-400">{error}</small> : null}
   </label>
 );
 
@@ -93,7 +89,14 @@ type SelectFieldProps = {
   disabled?: boolean;
 };
 
-export const SelectField = ({ label, value, onChange, options, error, disabled }: SelectFieldProps) => (
+export const SelectField = ({
+  label,
+  value,
+  onChange,
+  options,
+  error,
+  disabled,
+}: SelectFieldProps) => (
   <Field label={label} error={error}>
     <select
       value={value}

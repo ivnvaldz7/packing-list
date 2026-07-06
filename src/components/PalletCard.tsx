@@ -100,8 +100,11 @@ export const PalletCard = ({
               type="number"
               min={0}
               value={pallet.palletTareWeightKg}
-              onChange={(e) => onUpdatePallet(pallet.id, 'palletTareWeightKg', parseFloat(e.target.value) || 0)}
-              className="w-20 rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-center text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100"
+              onChange={(e) =>
+                onUpdatePallet(pallet.id, 'palletTareWeightKg', parseFloat(e.target.value) || 0)
+              }
+              readOnly={readOnly}
+              className={readOnly ? readonlyCls : fieldCls}
             />
           </label>
         </div>
@@ -141,6 +144,7 @@ export const PalletCard = ({
           value={pallet.label}
           onChange={(event) => onUpdatePallet(pallet.id, 'label', event.target.value)}
           placeholder={`Paleta ${index + 1}`}
+          readOnly={readOnly}
         />
       </div>
 
@@ -170,23 +174,26 @@ export const PalletCard = ({
             </thead>
             <tbody>
               {pallet.items.map((item) => (
-                <tr key={item.id} className="border-b border-stone-100 last:border-0 dark:border-stone-800">
-                    <td className="px-3 py-2">
-                      <select
-                        value={item.productId}
-                        onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
-                        className={itemErrors[item.id]?.productId ? fieldErrCls : fieldCls}
-                        title={itemErrors[item.id]?.productId}
-                        disabled={readOnly}
-                      >
-                        <option value="">Seleccionar producto</option>
-                        {products.map((product) => (
-                          <option key={product.id} value={product.id}>
-                            {product.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
+                <tr
+                  key={item.id}
+                  className="border-b border-stone-100 last:border-0 dark:border-stone-800"
+                >
+                  <td className="px-3 py-2">
+                    <select
+                      value={item.productId}
+                      onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
+                      className={itemErrors[item.id]?.productId ? fieldErrCls : fieldCls}
+                      title={itemErrors[item.id]?.productId}
+                      disabled={readOnly}
+                    >
+                      <option value="">Seleccionar producto</option>
+                      {products.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   <td className="px-3 py-2">
                     <input value={item.unit} readOnly className={readonlyCls} />
                   </td>
@@ -208,16 +215,16 @@ export const PalletCard = ({
                   </td>
                   <td className="px-3 py-2">
                     <input
-                        type="text"
-                        inputMode="numeric"
-                        value={item.quantity === 0 ? '' : item.quantity}
-                        onChange={(event) =>
-                          onUpdateItem(pallet.id, item.id, 'quantity', parseIntegerInput(event))
-                        }
-                        className={itemErrors[item.id]?.quantity ? fieldErrCls : fieldCls}
-                        title={itemErrors[item.id]?.quantity}
-                        readOnly={readOnly}
-                      />
+                      type="text"
+                      inputMode="numeric"
+                      value={item.quantity === 0 ? '' : item.quantity}
+                      onChange={(event) =>
+                        onUpdateItem(pallet.id, item.id, 'quantity', parseIntegerInput(event))
+                      }
+                      className={itemErrors[item.id]?.quantity ? fieldErrCls : fieldCls}
+                      title={itemErrors[item.id]?.quantity}
+                      readOnly={readOnly}
+                    />
                   </td>
                   <td className="px-3 py-2 text-right">
                     <button
@@ -259,11 +266,15 @@ export const PalletCard = ({
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 <label className="flex flex-col gap-1 sm:col-span-2">
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Producto</span>
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                    Producto
+                  </span>
                   <select
                     value={item.productId}
                     onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
-                    className={itemErrors[item.id]?.productId ? fieldErrCls : `${fieldCls} text-left`}
+                    className={
+                      itemErrors[item.id]?.productId ? fieldErrCls : `${fieldCls} text-left`
+                    }
                     title={itemErrors[item.id]?.productId}
                     disabled={readOnly}
                   >
@@ -277,12 +288,16 @@ export const PalletCard = ({
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Prefijo</span>
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                    Prefijo
+                  </span>
                   <input value={item.lotPrefix} readOnly className={readonlyCls} />
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">N° lote</span>
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                    N° lote
+                  </span>
                   <input
                     autoFocus={autoFocusItemId === item.id}
                     value={item.productionNumber}
@@ -297,7 +312,9 @@ export const PalletCard = ({
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Frascos</span>
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                    Frascos
+                  </span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -312,7 +329,9 @@ export const PalletCard = ({
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Cajas</span>
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                    Cajas
+                  </span>
                   <input value={item.boxesCount} readOnly className={readonlyCls} />
                 </label>
               </div>

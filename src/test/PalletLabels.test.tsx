@@ -9,13 +9,14 @@
  *
  * @vitest-environment jsdom
  */
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PalletLabels } from '../components/PalletLabel';
 import { createMockDocument } from './test-utils';
 
 describe('PalletLabels', () => {
+  afterEach(cleanup);
   const doc = createMockDocument();
 
   const defaultProps = {
@@ -108,6 +109,8 @@ describe('PalletLabels', () => {
   it('shows destinatario fixed info', () => {
     render(<PalletLabels {...defaultProps} />);
     expect(screen.getByText('LABORATORIOS ALE-BET SRL')).toBeInTheDocument();
-    expect(screen.getByText('CONDARCO 3073, CIUDAD DE BUENOS AIRES, ARGENTINA')).toBeInTheDocument();
+    expect(
+      screen.getByText('CONDARCO 3073, CIUDAD DE BUENOS AIRES, ARGENTINA'),
+    ).toBeInTheDocument();
   });
 });

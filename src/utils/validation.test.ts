@@ -26,7 +26,10 @@ describe('validation', () => {
     items,
   });
 
-  const createMockDocument = (pallets: Pallet[], mode: 'preparacion' | 'carga'): ShipmentDocument => ({
+  const createMockDocument = (
+    pallets: Pallet[],
+    mode: 'preparacion' | 'carga',
+  ): ShipmentDocument => ({
     id: 'doc-1',
     workflowStatus: mode,
     updatedAt: '',
@@ -42,27 +45,47 @@ describe('validation', () => {
   });
 
   it('should validate correctly when actual quantities match planned across splits', () => {
-    const item1 = createMockItem({ quantity: 12, plannedQuantity: 24, planId: 'group-1', id: 'i1' });
-    const item2 = createMockItem({ quantity: 12, plannedQuantity: 24, planId: 'group-1', id: 'i2' });
-    
+    const item1 = createMockItem({
+      quantity: 12,
+      plannedQuantity: 24,
+      planId: 'group-1',
+      id: 'i1',
+    });
+    const item2 = createMockItem({
+      quantity: 12,
+      plannedQuantity: 24,
+      planId: 'group-1',
+      id: 'i2',
+    });
+
     const doc = createMockDocument([createMockPallet([item1, item2])], 'carga');
     const validation = validateShipmentDocument(doc, 'carga');
-    
+
     // Sum is 24, matches planned 24. No errors expected.
-    const errors = validation.palletErrors.find(p => p.palletId === 'p1')?.itemErrors ?? {};
+    const errors = validation.palletErrors.find((p) => p.palletId === 'p1')?.itemErrors ?? {};
     expect(errors['i1']?.quantity).toBeUndefined();
     expect(errors['i2']?.quantity).toBeUndefined();
   });
 
   it('should report missing quantities if sum of splits is less than planned', () => {
-    const item1 = createMockItem({ quantity: 12, plannedQuantity: 36, planId: 'group-1', id: 'i1' });
-    const item2 = createMockItem({ quantity: 12, plannedQuantity: 36, planId: 'group-1', id: 'i2' });
-    
+    const item1 = createMockItem({
+      quantity: 12,
+      plannedQuantity: 36,
+      planId: 'group-1',
+      id: 'i1',
+    });
+    const item2 = createMockItem({
+      quantity: 12,
+      plannedQuantity: 36,
+      planId: 'group-1',
+      id: 'i2',
+    });
+
     const doc = createMockDocument([createMockPallet([item1, item2])], 'carga');
     const validation = validateShipmentDocument(doc, 'carga');
-    
+
     // Sum is 24, planned is 36. Diff = 12.
-    const errors = validation.palletErrors.find(p => p.palletId === 'p1')?.itemErrors ?? {};
+    const errors = validation.palletErrors.find((p) => p.palletId === 'p1')?.itemErrors ?? {};
     expect(errors['i1']?.quantity).toBe('Faltan 12 frascos.');
   });
 
@@ -70,8 +93,8 @@ describe('validation', () => {
     const item = createMockItem({ quantity: 14, unitsPerBox: 12, plannedQuantity: 14 });
     const doc = createMockDocument([createMockPallet([item])], 'carga');
     const validation = validateShipmentDocument(doc, 'carga');
-    
-    const errors = validation.palletErrors.find(p => p.palletId === 'p1')?.itemErrors ?? {};
+
+    const errors = validation.palletErrors.find((p) => p.palletId === 'p1')?.itemErrors ?? {};
     expect(errors['1']?.quantity).toBe('Caja cerrada x12.');
   });
 
@@ -79,8 +102,8 @@ describe('validation', () => {
     const item = createMockItem({ productionNumber: '' });
     const doc = createMockDocument([createMockPallet([item])], 'carga');
     const validation = validateShipmentDocument(doc, 'carga');
-    
-    const errors = validation.palletErrors.find(p => p.palletId === 'p1')?.itemErrors ?? {};
+
+    const errors = validation.palletErrors.find((p) => p.palletId === 'p1')?.itemErrors ?? {};
     expect(errors['1']?.productionNumber).toBe('Completá lote.');
   });
 
@@ -88,8 +111,8 @@ describe('validation', () => {
     const item = createMockItem({ productionNumber: '' });
     const doc = createMockDocument([createMockPallet([item])], 'preparacion');
     const validation = validateShipmentDocument(doc, 'preparacion');
-    
-    const errors = validation.palletErrors.find(p => p.palletId === 'p1')?.itemErrors ?? {};
+
+    const errors = validation.palletErrors.find((p) => p.palletId === 'p1')?.itemErrors ?? {};
     expect(errors['1']?.productionNumber).toBeUndefined();
   });
 });

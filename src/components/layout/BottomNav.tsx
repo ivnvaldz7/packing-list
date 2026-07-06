@@ -22,7 +22,12 @@ type BottomNavProps = {
   onSummaryClick?: () => void;
 };
 
-export const BottomNav = ({ activeStage, onStageChange, onFinalize, onSummaryClick }: BottomNavProps) => {
+export const BottomNav = ({
+  activeStage,
+  onStageChange,
+  onFinalize,
+  onSummaryClick,
+}: BottomNavProps) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-stone-200 bg-white/90 px-2 pb-safe backdrop-blur-lg dark:border-stone-800 dark:bg-stone-950/90 lg:hidden">
       {navItems.map((item) => {

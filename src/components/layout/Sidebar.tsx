@@ -22,7 +22,12 @@ type SidebarProps = {
   onSummaryClick?: () => void;
 };
 
-export const Sidebar = ({ activeStage, onStageChange, onFinalize, onSummaryClick }: SidebarProps) => {
+export const Sidebar = ({
+  activeStage,
+  onStageChange,
+  onFinalize,
+  onSummaryClick,
+}: SidebarProps) => {
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-16 flex-col items-center border-r border-stone-200 bg-white/90 py-3 shadow-sm backdrop-blur-lg transition-all duration-200 dark:border-stone-800 dark:bg-stone-950/90">
       {/* ─── Logo ─── */}
@@ -43,9 +48,10 @@ export const Sidebar = ({ activeStage, onStageChange, onFinalize, onSummaryClick
               className={`
                 group relative flex h-10 w-10 items-center justify-center rounded-lg
                 transition-all duration-150
-                ${isActive
-                  ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-200 dark:bg-brand-950 dark:text-brand-400 dark:ring-brand-800'
-                  : 'text-stone-500 hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200'
+                ${
+                  isActive
+                    ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-200 dark:bg-brand-950 dark:text-brand-400 dark:ring-brand-800'
+                    : 'text-stone-500 hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200'
                 }
               `}
             >

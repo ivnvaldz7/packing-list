@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DocumentLibrary } from './components/DocumentLibrary';
 import { DocumentHeaderForm } from './components/DocumentHeaderForm';
@@ -59,7 +59,10 @@ const App = () => {
     updateItem,
     removeItem,
   } = useShipmentDocument();
-  const validation = validateShipmentDocument(document, activeStage === 'carteles' ? 'preparacion' : activeStage);
+  const validation = validateShipmentDocument(
+    document,
+    activeStage === 'carteles' ? 'preparacion' : activeStage,
+  );
 
   useEffect(() => {
     window.document.documentElement.dataset.theme = theme;
@@ -78,25 +81,30 @@ const App = () => {
     };
   }, []);
 
-  const stageDirectionRef = useRef(0);
-
-  useEffect(() => {
-    if (document.workflowStatus === 'carga' || document.workflowStatus === 'finalizada') {
-      setActiveStage('carga');
-      return;
-    }
-
-    if (document.workflowStatus === 'preparacion') {
-      setActiveStage('preparacion');
-    }
-  }, [document.id, document.workflowStatus]);
-
-  const prevStageRef = useRef(activeStage);
+  const [prevStage, setPrevStage] = useState(activeStage);
   const stageDirection =
-    stageOrder[activeStage] - (stageOrder[prevStageRef.current] ?? stageOrder[activeStage]);
-  prevStageRef.current = activeStage;
+    stageOrder[activeStage] - (stageOrder[prevStage] ?? stageOrder[activeStage]);
+
+  const handleCreateNew = (): void => {
+    createNewDocument();
+    setActiveStage('preparacion');
+    setPrevStage('carteles');
+  };
+
+  const handleOpenDocument = async (documentId: string): Promise<void> => {
+    const workflowStatus = await openStoredDocument(documentId);
+    if (workflowStatus) {
+      if (workflowStatus === 'finalizada' || workflowStatus === 'carga') {
+        setActiveStage('carga');
+      } else {
+        setActiveStage(workflowStatus);
+      }
+      setPrevStage('carteles');
+    }
+  };
 
   const handleStageChange = (nextStage: 'carteles' | 'preparacion' | 'carga') => {
+    setPrevStage(activeStage);
     setActiveStage(nextStage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (nextStage === 'preparacion') {
@@ -163,11 +171,11 @@ const App = () => {
             activeDocumentId={document.id}
             onClose={() => setIsLibraryOpen(false)}
             onCreate={() => {
-              createNewDocument();
+              handleCreateNew();
               setIsLibraryOpen(false);
             }}
-            onOpen={(documentId) => {
-              void openStoredDocument(documentId);
+            onOpen={async (documentId) => {
+              await handleOpenDocument(documentId);
               setIsLibraryOpen(false);
             }}
             onDelete={(documentId) => void deleteStoredDocument(documentId)}
@@ -185,7 +193,7 @@ const App = () => {
         isSaving={isSaving}
         onPrint={handlePrintPdf}
         onExportExcel={handleExportExcel}
-        onNew={createNewDocument}
+        onNew={handleCreateNew}
         onOpenLibrary={() => setIsLibraryOpen(true)}
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
@@ -230,7 +238,7 @@ const App = () => {
                 onClonePallet={clonePallet}
                 onSelectProduct={selectProduct}
                 onUpdateItem={(palletId, itemId, field, value) =>
-                  updateItem('preparacion', palletId, itemId, field, value as never)
+                  updateItem('preparacion', palletId, itemId, field, value)
                 }
                 onRemoveItem={removeItem}
                 onNavigateToCarga={handleNavigateToCarga}
@@ -254,7 +262,7 @@ const App = () => {
                 onClonePallet={clonePallet}
                 onSelectProduct={selectProduct}
                 onUpdateItem={(palletId, itemId, field, value) =>
-                  updateItem('carga', palletId, itemId, field, value as never)
+                  updateItem('carga', palletId, itemId, field, value)
                 }
                 onRemoveItem={removeItem}
               />

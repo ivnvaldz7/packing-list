@@ -1,4 +1,3 @@
-import { getCountryPreset } from '../data/countries';
 import type { Pallet, PalletItem, ShipmentDocument } from '../types';
 import { FIXED_PALLET_TARE_WEIGHT_KG } from './constants';
 

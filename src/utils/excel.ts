@@ -49,17 +49,21 @@ export const exportShipmentDocumentXlsx = (
   const separatorRow: XLSX.CellObject[][] = [[]];
 
   /* ─── Column widths ─── */
-  const colWidths = [{ wch: 8 }, { wch: 30 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 14 }];
+  const colWidths = [
+    { wch: 8 },
+    { wch: 30 },
+    { wch: 16 },
+    { wch: 14 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 14 },
+  ];
 
   /* ─── Build sheets ─── */
   const wb = XLSX.utils.book_new();
 
   // Sheet 1: Consolidated list
-  const sheetData: XLSX.CellObject[][] = [
-    ...headerRows,
-    ...metaSection,
-    ...separatorRow,
-  ];
+  const sheetData: XLSX.CellObject[][] = [...headerRows, ...metaSection, ...separatorRow];
 
   // Pallet sections
   pallets.forEach((pallet, index) => {
@@ -68,7 +72,11 @@ export const exportShipmentDocumentXlsx = (
 
     sheetData.push([
       { t: 's', v: `PALLET N° ${index + 1}`, s: { font: { bold: true, sz: 11 } } },
-      { t: 's', v: `Bruto: ${grossText}  |  Tarima: ${tareText}`, s: { font: { color: { rgb: '888888' } } } },
+      {
+        t: 's',
+        v: `Bruto: ${grossText}  |  Tarima: ${tareText}`,
+        s: { font: { color: { rgb: '888888' } } },
+      },
     ]);
 
     // Table header
@@ -79,7 +87,11 @@ export const exportShipmentDocumentXlsx = (
       { t: 's', v: 'Frascos', s: { font: { bold: true }, fill: { fgColor: { rgb: 'F0F0F0' } } } },
       { t: 's', v: 'Cajas', s: { font: { bold: true }, fill: { fgColor: { rgb: 'F0F0F0' } } } },
       { t: 's', v: 'Detalle', s: { font: { bold: true }, fill: { fgColor: { rgb: 'F0F0F0' } } } },
-      { t: 's', v: 'P. Neto (kg)', s: { font: { bold: true }, fill: { fgColor: { rgb: 'F0F0F0' } } } },
+      {
+        t: 's',
+        v: 'P. Neto (kg)',
+        s: { font: { bold: true }, fill: { fgColor: { rgb: 'F0F0F0' } } },
+      },
     ]);
 
     // Items
@@ -109,9 +121,7 @@ export const exportShipmentDocumentXlsx = (
     0,
   );
 
-  sheetData.push([
-    { t: 's', v: 'TOTALES', s: { font: { bold: true, sz: 11 } } },
-  ]);
+  sheetData.push([{ t: 's', v: 'TOTALES', s: { font: { bold: true, sz: 11 } } }]);
   sheetData.push([
     { t: 's', v: 'Paletas', s: { font: { bold: true } } },
     { t: 'n', v: pallets.length },

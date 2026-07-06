@@ -11,20 +11,21 @@ type DocumentLibraryProps = {
   onDelete: (documentId: string) => void;
 };
 
-const statusBadge: Record<StoredDocumentSummary['workflowStatus'], { label: string; cls: string }> = {
-  preparacion: {
-    label: 'Preparación',
-    cls: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:ring-amber-800',
-  },
-  carga: {
-    label: 'En carga final',
-    cls: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:ring-blue-800',
-  },
-  finalizada: {
-    label: 'Finalizada',
-    cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:ring-emerald-800',
-  },
-};
+const statusBadge: Record<StoredDocumentSummary['workflowStatus'], { label: string; cls: string }> =
+  {
+    preparacion: {
+      label: 'Preparación',
+      cls: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:ring-amber-800',
+    },
+    carga: {
+      label: 'En carga final',
+      cls: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:ring-blue-800',
+    },
+    finalizada: {
+      label: 'Finalizada',
+      cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:ring-emerald-800',
+    },
+  };
 
 const formatDateTime = (value: string): string =>
   new Intl.DateTimeFormat('es-AR', {
@@ -40,7 +41,11 @@ export const DocumentLibrary = ({
   onOpen,
   onDelete,
 }: DocumentLibraryProps) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+  >
     {/* ─── Backdrop ─── */}
     <motion.button
       type="button"
@@ -71,8 +76,8 @@ export const DocumentLibrary = ({
             Listas guardadas
           </h2>
           <p className="mt-1 max-w-prose text-sm text-stone-500 dark:text-stone-400">
-            Cada packing list se guarda como un documento independiente para que el diseñador y el armador
-            puedan trabajar distintas listas sin pisarse entre sí.
+            Cada packing list se guarda como un documento independiente para que el diseñador y el
+            armador puedan trabajar distintas listas sin pisarse entre sí.
           </p>
         </div>
         <motion.button
@@ -111,7 +116,12 @@ export const DocumentLibrary = ({
             No hay listas guardadas todavía.
           </motion.p>
         ) : (
-          <motion.div className="space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
+          <motion.div
+            className="space-y-3"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {documents.map((entry) => {
               const isActive = entry.id === activeDocumentId;
               const badge = statusBadge[entry.workflowStatus];
@@ -132,11 +142,15 @@ export const DocumentLibrary = ({
                         <strong className="text-sm text-stone-800 dark:text-stone-100">
                           {entry.invoiceNumber || 'Sin factura'}
                         </strong>
-                        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${badge.cls}`}>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${badge.cls}`}
+                        >
                           {badge.label}
                         </span>
                       </div>
-                      <p className="text-sm text-stone-500 dark:text-stone-400">{entry.laboratoryName}</p>
+                      <p className="text-sm text-stone-500 dark:text-stone-400">
+                        {entry.laboratoryName}
+                      </p>
                       <p className="text-xs text-stone-400 dark:text-stone-500">{entry.address}</p>
                       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-stone-400 dark:text-stone-500">
                         <span>{entry.country || '—'}</span>

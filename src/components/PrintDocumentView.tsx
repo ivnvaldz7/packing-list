@@ -89,9 +89,12 @@ export const PrintDocumentView = ({
                     {`${item.lotPrefix || ''}${item.productionNumber || ''}` || '-'}
                   </td>
                   <td className="print-tbl-cell print-tbl-cell--sum">
-                    {item.boxesCount} Cj × {item.unitsPerBox} Fr × {formatWeight(item.weightPerBoxKg)}/Cj
+                    {item.boxesCount} Cj × {item.unitsPerBox} Fr ×{' '}
+                    {formatWeight(item.weightPerBoxKg)}/Cj
                   </td>
-                  <td className="print-tbl-cell print-tbl-cell--num">{formatWeight(item.netWeightKg)}</td>
+                  <td className="print-tbl-cell print-tbl-cell--num">
+                    {formatWeight(item.netWeightKg)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -128,7 +131,11 @@ export const PrintDocumentView = ({
           </tbody>
         </table>
         <p className="print-totals-ts">
-          {new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date().toLocaleDateString('es-AR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
         </p>
       </div>
     </section>

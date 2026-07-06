@@ -1,4 +1,4 @@
-export type ShipmentCountry = 'PANAMA' | 'COLOMBIA' | 'PARAGUAY' | 'BOLIVIA' | 'ECUADOR' | ''
+export type ShipmentCountry = 'PANAMA' | 'COLOMBIA' | 'PARAGUAY' | 'BOLIVIA' | 'ECUADOR' | '';
 export type ShipmentWorkflowStatus = 'preparacion' | 'carga' | 'finalizada';
 
 export type DocumentHeader = {

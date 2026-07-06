@@ -34,17 +34,20 @@ const normalizeItem = (item: Partial<PalletItem>): PalletItem => ({
 const normalizePallet = (pallet: Partial<Pallet>): Pallet => ({
   id: pallet.id ?? crypto.randomUUID(),
   label: pallet.label ?? 'Paleta',
-  palletTareWeightKg: typeof pallet.palletTareWeightKg === 'number' ? pallet.palletTareWeightKg : FIXED_PALLET_TARE_WEIGHT_KG,
+  palletTareWeightKg:
+    typeof pallet.palletTareWeightKg === 'number'
+      ? pallet.palletTareWeightKg
+      : FIXED_PALLET_TARE_WEIGHT_KG,
   items:
     pallet.items && pallet.items.length > 0
       ? pallet.items.map((item) => normalizeItem(item))
       : [normalizeItem({})],
 });
 
-const normalizeHeader = (header?: Partial<DocumentHeader> & Record<string, unknown>): DocumentHeader => ({
-  ...getCountryPreset(
-    typeof header?.country === 'string' ? header.country : 'PANAMA',
-  ),
+const normalizeHeader = (
+  header?: Partial<DocumentHeader> & Record<string, unknown>,
+): DocumentHeader => ({
+  ...getCountryPreset(typeof header?.country === 'string' ? header.country : 'PANAMA'),
   invoiceNumber:
     typeof header?.invoiceNumber === 'string'
       ? header.invoiceNumber
@@ -73,5 +76,7 @@ export const normalizeShipmentDocument = (document: ShipmentDocument): ShipmentD
     document.pallets.length > 0
       ? document.pallets.map((pallet) => normalizePallet(pallet))
       : [normalizePallet({ label: 'Paleta 1' })],
-  workflowStatus: normalizeWorkflowStatus((document as ShipmentDocument & Record<string, unknown>).workflowStatus),
+  workflowStatus: normalizeWorkflowStatus(
+    (document as ShipmentDocument & Record<string, unknown>).workflowStatus,
+  ),
 });
