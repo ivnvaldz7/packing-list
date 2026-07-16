@@ -64,11 +64,9 @@ test.describe('App smoke tests', () => {
     // Navigate to preparación
     await page.getByRole('button', { name: 'Preparación', exact: true }).click();
 
-    // Click "Agregar paleta" button in the sidebar
-    const addPalletBtn = page.locator('button:has-text("Agregar")');
-    if (await addPalletBtn.isVisible()) {
-      await addPalletBtn.first().click();
-    }
+    // Use the preparation view action that appends pallets when a list already exists.
+    await page.getByRole('button', { name: 'Añadir otra paleta' }).click();
+    await expect(page.getByText('Paleta 02')).toBeVisible();
   });
 
   test('navigates to carga stage', async ({ page }) => {
@@ -125,7 +123,7 @@ test.describe('App smoke tests', () => {
     await page.locator('#header-section').getByLabel('País').selectOption('PANAMA');
 
     // Add a second pallet
-    await page.getByRole('button', { name: 'Añadir paleta' }).click();
+    await page.getByRole('button', { name: 'Añadir otra paleta' }).click();
     await expect(page.getByText('Paleta 02')).toBeVisible();
 
     // Wait for IndexedDB auto-save (debounced at 600ms)

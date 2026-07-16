@@ -353,6 +353,29 @@ describe('useShipmentDocument', () => {
       expect(item?.unitsPerBox).toBe(15);
     });
 
+    it('selectProduct clears product fields when product id is empty', async () => {
+      const { result } = await renderHookWithReady();
+      const palletId = result.current.document.pallets[0].id;
+      const itemId = result.current.document.pallets[0].items[0].id;
+
+      act(() => result.current.selectProduct(palletId, itemId, 'am0138-amantina-250-ml'));
+      act(() => result.current.selectProduct(palletId, itemId, ''));
+
+      const item = result.current.document.pallets
+        .find((p) => p.id === palletId)!
+        .items.find((i) => i.id === itemId);
+      expect(item?.productId).toBe('');
+      expect(item?.sku).toBe('');
+      expect(item?.description).toBe('');
+      expect(item?.lotPrefix).toBe('');
+      expect(item?.productionNumber).toBe('');
+      expect(item?.unit).toBe('Frascos');
+      expect(item?.unitsPerBox).toBe(0);
+      expect(item?.weightPerBoxKg).toBe(0);
+      expect(item?.plannedQuantity).toBe(0);
+      expect(item?.quantity).toBe(24);
+    });
+
     it('selectProduct does nothing for an unknown product id', async () => {
       const { result } = await renderHookWithReady();
       const palletId = result.current.document.pallets[0].id;

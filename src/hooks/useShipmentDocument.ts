@@ -51,6 +51,20 @@ const summarizeDocument = (document: ShipmentDocument): StoredDocumentSummary =>
 const sortByUpdatedAt = (documents: ShipmentDocument[]): ShipmentDocument[] =>
   [...documents].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
 
+const clearItemProduct = (item: PalletItem): PalletItem => ({
+  ...item,
+  productId: '',
+  sku: '',
+  description: '',
+  lotPrefix: '',
+  productionNumber: '',
+  unit: 'Frascos',
+  unitsPerBox: 0,
+  weightPerBoxKg: 0,
+  plannedQuantity: 0,
+  planId: createId(),
+});
+
 export const useShipmentDocument = () => {
   const [document, setDocument] = useState<ShipmentDocument>(createInitialDocument);
   const [status, setStatus] = useState<LoadStatus>('loading');
@@ -419,6 +433,25 @@ export const useShipmentDocument = () => {
   };
 
   const selectProduct = (palletId: string, itemId: string, productId: string): void => {
+    if (productId === '') {
+      setDocument((current) =>
+        touch({
+          ...current,
+          pallets: current.pallets.map((pallet) =>
+            pallet.id === palletId
+              ? {
+                  ...pallet,
+                  items: pallet.items.map((item) =>
+                    item.id === itemId ? clearItemProduct(item) : item,
+                  ),
+                }
+              : pallet,
+          ),
+        }),
+      );
+      return;
+    }
+
     const selectedProduct = productCatalog.find((product) => product.id === productId);
     if (!selectedProduct) {
       return;

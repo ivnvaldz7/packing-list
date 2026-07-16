@@ -1,4 +1,3 @@
-```toml
 name = "planner"
 
 description = """
@@ -117,4 +116,3 @@ Formato de entrega:
 Mantener la salida lo más breve posible sin perder información necesaria.
 No superar aproximadamente 1000 palabras salvo que la tarea sea realmente grande.
 """
-```

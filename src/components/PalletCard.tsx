@@ -2,7 +2,8 @@ import type { ChangeEvent } from 'react';
 import type { ItemValidation, PalletComputed, Product } from '../types';
 import { formatWeight, formatWholeWeight } from '../utils/format';
 import { InputField } from './Field';
-import { IconTrash } from './layout/Icons';
+import { ProductCombobox } from './ProductCombobox';
+import { IconPackage, IconTrash } from './layout/Icons';
 
 /* ─── Shared input classes ─── */
 
@@ -11,6 +12,8 @@ const fieldCls =
 const fieldErrCls =
   'w-full rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-center text-sm text-red-900 transition-colors focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 dark:border-red-700 dark:bg-red-950 dark:text-red-300';
 const readonlyCls = `${fieldCls} cursor-default opacity-70`;
+const autoFieldCls =
+  'w-full cursor-default rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-center text-sm text-stone-500 shadow-inner shadow-stone-100/50 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-400 dark:shadow-none';
 
 /* ─── Types ─── */
 
@@ -75,46 +78,48 @@ export const PalletCard = ({
 
   return (
     <section
-      className={`rounded-xl border bg-white p-5 shadow-sm transition-all duration-200 dark:bg-stone-900 ${
+      className={`rounded-2xl border bg-white p-4 shadow-sm shadow-stone-200/60 transition-all duration-200 dark:bg-stone-900 dark:shadow-black/10 sm:p-5 ${
         hasErrors
           ? 'border-red-200 shadow-red-100 dark:border-red-800 dark:shadow-red-950'
           : 'border-stone-200 dark:border-stone-700'
       }`}
     >
       {/* ─── Header ─── */}
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-h-9 items-center gap-3">
           <span
-            className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+            className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${
               hasErrors
                 ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                 : 'bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300'
             }`}
           >
-            {`Paleta ${String(index + 1).padStart(2, '0')}`}
+            {`PALETA ${String(index + 1).padStart(2, '0')}`}
           </span>
 
-          <label className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
-            Peso tarima (kg)
-            <input
-              type="number"
-              min={0}
-              value={pallet.palletTareWeightKg}
-              onChange={(e) =>
-                onUpdatePallet(pallet.id, 'palletTareWeightKg', parseFloat(e.target.value) || 0)
-              }
-              readOnly={readOnly}
-              className={readOnly ? readonlyCls : fieldCls}
-            />
-          </label>
+          {mode === 'carga' && (
+            <label className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
+              Peso tarima (kg)
+              <input
+                type="number"
+                min={0}
+                value={pallet.palletTareWeightKg}
+                onChange={(e) =>
+                  onUpdatePallet(pallet.id, 'palletTareWeightKg', parseFloat(e.target.value) || 0)
+                }
+                readOnly={readOnly}
+                className={readOnly ? readonlyCls : fieldCls}
+              />
+            </label>
+          )}
         </div>
 
         {!readOnly && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => onAddItem(pallet.id)}
-              className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 transition-all hover:bg-brand-100 active:scale-95 dark:border-brand-800 dark:bg-brand-950 dark:text-brand-300 dark:hover:bg-brand-900"
+              className="rounded-lg bg-brand-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-brand-600 active:scale-95 dark:bg-brand-500 dark:hover:bg-brand-400"
             >
               Agregar {mode === 'carga' ? 'item' : 'producto'}
             </button>
@@ -138,7 +143,7 @@ export const PalletCard = ({
       </div>
 
       {/* ─── Label ─── */}
-      <div className="mb-4">
+      <div className="mb-5">
         <InputField
           label="Nombre interno"
           value={pallet.label}
@@ -150,24 +155,24 @@ export const PalletCard = ({
 
       {/* ════════════════ ITEMS ════════════════ */}
       {mode === 'preparacion' ? (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+        <div className="overflow-x-auto rounded-xl border border-stone-100 dark:border-stone-800">
+          <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-stone-200 dark:border-stone-700">
+              <tr className="border-b border-stone-200 bg-stone-50/80 dark:border-stone-700 dark:bg-stone-800/50">
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                   Producto
                 </th>
                 <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  Und.
-                </th>
-                <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  Frascos/caja
-                </th>
-                <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  Peso/caja
-                </th>
-                <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                   Frascos
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  Unidad
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  Frascos por caja
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  Peso por caja
                 </th>
                 <th className="px-3 py-2" />
               </tr>
@@ -178,45 +183,24 @@ export const PalletCard = ({
                   key={item.id}
                   className="border-b border-stone-100 last:border-0 dark:border-stone-800"
                 >
-                  <td className="px-3 py-2">
-                    <select
+                  <td className="w-[42%] px-3 py-2 align-top">
+                    <ProductCombobox
+                      products={products}
                       value={item.productId}
-                      onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
-                      className={itemErrors[item.id]?.productId ? fieldErrCls : fieldCls}
+                      onChange={(productId) => onSelectProduct(pallet.id, item.id, productId)}
+                      className={
+                        itemErrors[item.id]?.productId ? fieldErrCls : `${fieldCls} text-left`
+                      }
                       title={itemErrors[item.id]?.productId}
                       disabled={readOnly}
-                    >
-                      <option value="">Seleccionar producto</option>
-                      {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2">
-                    <input value={item.unit} readOnly className={readonlyCls} />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input
-                      value={item.unitsPerBox || ''}
-                      readOnly
-                      className={readonlyCls}
-                      placeholder="Auto"
+                      label="Producto"
                     />
                   </td>
-                  <td className="px-3 py-2">
-                    <input
-                      value={item.weightPerBoxKg === 0 ? '' : item.weightPerBoxKg}
-                      readOnly
-                      className={readonlyCls}
-                      placeholder="Auto"
-                    />
-                  </td>
-                  <td className="px-3 py-2">
+                  <td className="w-28 px-3 py-2 align-top">
                     <input
                       type="text"
                       inputMode="numeric"
+                      aria-label="Frascos"
                       value={item.quantity === 0 ? '' : item.quantity}
                       onChange={(event) =>
                         onUpdateItem(pallet.id, item.id, 'quantity', parseIntegerInput(event))
@@ -226,7 +210,36 @@ export const PalletCard = ({
                       readOnly={readOnly}
                     />
                   </td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="w-28 px-3 py-2 align-top">
+                    <input
+                      aria-label="Unidad"
+                      value={item.unit}
+                      readOnly
+                      tabIndex={-1}
+                      className={autoFieldCls}
+                    />
+                  </td>
+                  <td className="w-36 px-3 py-2 align-top">
+                    <input
+                      aria-label="Frascos por caja"
+                      value={item.unitsPerBox || ''}
+                      readOnly
+                      tabIndex={-1}
+                      className={autoFieldCls}
+                      placeholder="Auto"
+                    />
+                  </td>
+                  <td className="w-32 px-3 py-2 align-top">
+                    <input
+                      aria-label="Peso por caja"
+                      value={item.weightPerBoxKg === 0 ? '' : item.weightPerBoxKg}
+                      readOnly
+                      tabIndex={-1}
+                      className={autoFieldCls}
+                      placeholder="Auto"
+                    />
+                  </td>
+                  <td className="w-12 px-3 py-2 text-right align-top">
                     <button
                       type="button"
                       onClick={() => onRemoveItem(pallet.id, item.id)}
@@ -269,29 +282,24 @@ export const PalletCard = ({
                   <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
                     Producto
                   </span>
-                  <select
+                  <ProductCombobox
+                    products={products}
                     value={item.productId}
-                    onChange={(event) => onSelectProduct(pallet.id, item.id, event.target.value)}
+                    onChange={(productId) => onSelectProduct(pallet.id, item.id, productId)}
                     className={
                       itemErrors[item.id]?.productId ? fieldErrCls : `${fieldCls} text-left`
                     }
                     title={itemErrors[item.id]?.productId}
                     disabled={readOnly}
-                  >
-                    <option value="">Seleccionar producto</option>
-                    {products.map((product) => (
-                      <option key={product.id} value={product.id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
+                    label="Producto"
+                  />
                 </label>
 
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
                     Prefijo
                   </span>
-                  <input value={item.lotPrefix} readOnly className={readonlyCls} />
+                  <input value={item.lotPrefix} readOnly tabIndex={-1} className={readonlyCls} />
                 </label>
 
                 <label className="flex flex-col gap-1">
@@ -332,7 +340,7 @@ export const PalletCard = ({
                   <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
                     Cajas
                   </span>
-                  <input value={item.boxesCount} readOnly className={readonlyCls} />
+                  <input value={item.boxesCount} readOnly tabIndex={-1} className={readonlyCls} />
                 </label>
               </div>
             </article>
@@ -341,16 +349,40 @@ export const PalletCard = ({
       )}
 
       {/* ─── Footer ─── */}
-      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-stone-100 pt-3 text-xs text-stone-400 dark:border-stone-800 dark:text-stone-500">
+      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-4 text-xs text-stone-500 dark:border-stone-800 dark:text-stone-400">
         {mode === 'preparacion' ? (
-          <span>{`${pallet.items.length} producto${pallet.items.length === 1 ? '' : 's'} previstos`}</span>
+          <>
+            <span className="inline-flex items-center gap-1.5">
+              <IconPackage className="h-4 w-4 text-brand-500" />
+              {`${pallet.items.length} producto${pallet.items.length === 1 ? '' : 's'} previstos`}
+            </span>
+            <span aria-hidden="true" className="h-4 w-px bg-stone-200 dark:bg-stone-700" />
+            <span className="inline-flex items-center gap-1.5">
+              <svg
+                className="h-4 w-4 text-brand-500"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3v18" />
+                <path d="M5 8h14" />
+                <path d="M6 8l-3 7h6L6 8z" />
+                <path d="M18 8l-3 7h6l-3-7z" />
+              </svg>
+              {`Tarima ${formatWholeWeight(pallet.palletTareWeightKg)}`}
+            </span>
+          </>
         ) : (
           <>
             <span>{`Subtotal neto ${formatWeight(pallet.totalNetWeightKg)}`}</span>
             <span>{`Peso bruto ${formatWeight(pallet.totalGrossWeightKg)}`}</span>
+            <span>{`Tarima ${formatWholeWeight(pallet.palletTareWeightKg)}`}</span>
           </>
         )}
-        <span>{`Tarima ${formatWholeWeight(pallet.palletTareWeightKg)}`}</span>
       </div>
     </section>
   );

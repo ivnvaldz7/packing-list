@@ -45,10 +45,11 @@ export const PreparacionView = ({
   onNavigateToCarga,
 }: PreparacionViewProps) => {
   const hasPallets = computedPallets.length > 0;
+  const finalLoadPalletId = computedPallets[computedPallets.length - 1]?.id;
 
   return (
     <section className="mb-8 animate-stage-in">
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-6">
         <div>
           <h2 className="text-lg font-semibold text-stone-800 dark:text-stone-100">
             Preparación del embarque
@@ -58,15 +59,6 @@ export const PreparacionView = ({
             paleta. Los lotes y cantidades reales se completan después.
           </p>
         </div>
-        {!readOnly && (
-          <button
-            type="button"
-            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
-            onClick={onAddPallet}
-          >
-            Añadir paleta
-          </button>
-        )}
       </div>
 
       {/* Stats cards */}
@@ -133,49 +125,44 @@ export const PreparacionView = ({
         <>
           <div className="space-y-4">
             {computedPallets.map((pallet, index) => (
-              <div key={pallet.id}>
-                <PalletCard
-                  mode="preparacion"
-                  pallet={pallet}
-                  products={products}
-                  autoFocusItemId={lastCreatedItemId}
-                  itemErrors={
-                    validation.palletErrors.find((entry) => entry.palletId === pallet.id)
-                      ?.itemErrors ?? {}
-                  }
-                  index={index}
-                  canRemove={computedPallets.length > 1}
-                  readOnly={readOnly}
-                  onUpdatePallet={onUpdatePallet}
-                  onRemovePallet={onRemovePallet}
-                  onAddItem={onAddItem}
-                  onClonePallet={onClonePallet}
-                  onSelectProduct={onSelectProduct}
-                  onUpdateItem={onUpdateItem}
-                  onRemoveItem={onRemoveItem}
-                />
-                {!readOnly && (
-                  <div className="mt-2 flex justify-end">
-                    <button
-                      type="button"
-                      className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-                      onClick={() => onNavigateToCarga(pallet.id)}
-                    >
-                      Pasar a carga final →
-                    </button>
-                  </div>
-                )}
-              </div>
+              <PalletCard
+                key={pallet.id}
+                mode="preparacion"
+                pallet={pallet}
+                products={products}
+                autoFocusItemId={lastCreatedItemId}
+                itemErrors={
+                  validation.palletErrors.find((entry) => entry.palletId === pallet.id)
+                    ?.itemErrors ?? {}
+                }
+                index={index}
+                canRemove={computedPallets.length > 1}
+                readOnly={readOnly}
+                onUpdatePallet={onUpdatePallet}
+                onRemovePallet={onRemovePallet}
+                onAddItem={onAddItem}
+                onClonePallet={onClonePallet}
+                onSelectProduct={onSelectProduct}
+                onUpdateItem={onUpdateItem}
+                onRemoveItem={onRemoveItem}
+              />
             ))}
           </div>
-          {!readOnly && (
-            <div className="mt-6">
+          {!readOnly && finalLoadPalletId && (
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-all hover:bg-stone-100 active:scale-95 dark:border-stone-600 dark:text-stone-300 dark:hover:bg-stone-800"
                 onClick={onAddPallet}
               >
                 Añadir otra paleta
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-600 active:scale-95 dark:bg-brand-500 dark:hover:bg-brand-400"
+                onClick={() => onNavigateToCarga(finalLoadPalletId)}
+              >
+                Pasar a carga final →
               </button>
             </div>
           )}
