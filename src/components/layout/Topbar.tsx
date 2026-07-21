@@ -69,17 +69,22 @@ export const Topbar = ({
           {isSaving ? 'Guardando...' : 'Guardado'}
         </span>
         {onSave && (
-          <button onClick={onSave} title="Guardar" className={btnClass}>
+          <button onClick={onSave} disabled={isSaving} title="Guardar" className={btnClass}>
             <IconSave className="h-4 w-4" />
           </button>
         )}
         {onPrint && (
-          <button onClick={onPrint} title="Imprimir" className={btnClass}>
+          <button onClick={onPrint} disabled={isSaving} title="Imprimir" className={btnClass}>
             <IconPrinter className="h-4 w-4" />
           </button>
         )}
         {onExportExcel && (
-          <button onClick={onExportExcel} title="Exportar a Excel" className={btnClass}>
+          <button
+            onClick={onExportExcel}
+            disabled={isSaving}
+            title="Exportar a Excel"
+            className={btnClass}
+          >
             <IconDownload className="h-4 w-4" />
           </button>
         )}

@@ -22,38 +22,8 @@ describe('PalletLabels', () => {
   const defaultProps = {
     document: doc,
     labelCount: 3,
-    onLabelCountChange: vi.fn(),
     onPrint: vi.fn(),
   };
-
-  it('renders label count input with initial value', () => {
-    render(<PalletLabels {...defaultProps} />);
-    const input = screen.getByLabelText('Cantidad de carteles');
-    expect(input).toHaveValue(3);
-  });
-
-  it('increments count on + click', async () => {
-    const user = userEvent.setup();
-    const onChange = vi.fn();
-    render(<PalletLabels {...defaultProps} onLabelCountChange={onChange} />);
-
-    await user.click(screen.getByText('+'));
-    expect(onChange).toHaveBeenCalledWith(4);
-  });
-
-  it('decrements count on − click', async () => {
-    const user = userEvent.setup();
-    const onChange = vi.fn();
-    render(<PalletLabels {...defaultProps} onLabelCountChange={onChange} />);
-
-    await user.click(screen.getByText('−'));
-    expect(onChange).toHaveBeenCalledWith(2);
-  });
-
-  it('disables − button at minimum count (1)', () => {
-    render(<PalletLabels {...defaultProps} labelCount={1} />);
-    expect(screen.getByText('−')).toBeDisabled();
-  });
 
   it('shows print button', () => {
     render(<PalletLabels {...defaultProps} />);

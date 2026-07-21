@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { IconLabels, IconClipboard, IconPackage, IconList, IconCheck } from './Icons';
+import { IconLabels, IconClipboard, IconPackage, IconCheck } from './Icons';
 
 type Stage = 'carteles' | 'preparacion' | 'carga';
 
@@ -19,15 +19,9 @@ type BottomNavProps = {
   activeStage: Stage;
   onStageChange: (stage: Stage) => void;
   onFinalize?: () => void;
-  onSummaryClick?: () => void;
 };
 
-export const BottomNav = ({
-  activeStage,
-  onStageChange,
-  onFinalize,
-  onSummaryClick,
-}: BottomNavProps) => {
+export const BottomNav = ({ activeStage, onStageChange, onFinalize }: BottomNavProps) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-stone-200 bg-white/90 px-2 pb-safe backdrop-blur-lg dark:border-stone-800 dark:bg-stone-950/90 lg:hidden">
       {navItems.map((item) => {
@@ -48,14 +42,6 @@ export const BottomNav = ({
           </button>
         );
       })}
-
-      <button
-        onClick={onSummaryClick}
-        className="flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-medium text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
-      >
-        <IconList className="h-5 w-5" />
-        Resumen
-      </button>
 
       {onFinalize && (
         <button

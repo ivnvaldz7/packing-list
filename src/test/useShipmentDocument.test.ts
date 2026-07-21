@@ -177,6 +177,65 @@ describe('useShipmentDocument', () => {
     });
   });
 
+  describe('immediate persistence', () => {
+    it('saveCurrentDocument persists the provided document and refreshes the library', async () => {
+      const { result } = await renderHookWithReady();
+      const finalized = { ...result.current.document, workflowStatus: 'finalizada' as const };
+      await act(async () => result.current.saveCurrentDocument(finalized));
+      expect(mockDb.saveDocument).toHaveBeenLastCalledWith(finalized);
+      expect(result.current.document.workflowStatus).toBe('finalizada');
+      expect(result.current.documentLibrary[0].workflowStatus).toBe('finalizada');
+    });
+
+    it('keeps edit B when delayed autosave A completes', async () => {
+      const { result } = await renderHookWithReady();
+      let resolveSave!: () => void;
+      mockDb.saveDocument.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+      );
+      act(() => result.current.updateHeader('invoiceNumber', 'A'));
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      act(() => result.current.updateHeader('invoiceNumber', 'B'));
+      await act(async () => resolveSave());
+      expect(result.current.document.header.invoiceNumber).toBe('B');
+    });
+
+    it('does not revert finalization when an older autosave completes later', async () => {
+      const { result } = await renderHookWithReady();
+      let resolveSave!: () => void;
+      mockDb.saveDocument.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+      );
+      act(() => result.current.updateHeader('invoiceNumber', 'draft'));
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      const finalized = { ...result.current.document, workflowStatus: 'finalizada' as const };
+      const finalSave = result.current.saveCurrentDocument(finalized);
+      await act(async () => resolveSave());
+      await act(async () => finalSave);
+      expect(result.current.document.workflowStatus).toBe('finalizada');
+      expect(mockDb.saveDocument).toHaveBeenLastCalledWith(finalized);
+    });
+
+    it('rejects and exposes an error when immediate persistence fails', async () => {
+      mockDb.saveDocument.mockRejectedValueOnce(new Error('DB error'));
+      const { result } = await renderHookWithReady();
+      let failure: unknown;
+      await act(async () => {
+        try {
+          await result.current.saveCurrentDocument();
+        } catch (error) {
+          failure = error;
+        }
+      });
+      expect(failure).toEqual(expect.objectContaining({ message: 'DB error' }));
+      expect(result.current.error).toContain('Reintentá');
+    });
+  });
+
   /* ─── Pallets ─── */
 
   describe('pallet operations', () => {
@@ -325,6 +384,22 @@ describe('useShipmentDocument', () => {
       expect(result.current.document.header.country).toBe('COLOMBIA');
       expect(result.current.document.header.laboratoryName).toBe('LABORATORIOS AUROFARMA SAS');
     });
+
+    it.each([
+      ['PARAGUAY', 'AGRO VETERINARIA TOTAL SRL', 'LUIS ALBERTO HERRERA 477, ASUNCION-PARAGUAY'],
+      ['PARAGUAY_GENETYX', 'GENETYX', 'BERNARDINO CABALLERO 1515, MARIANO ROQUE ALONSO-PARAGUAY'],
+    ])(
+      'updateCountryPreset applies the complete %s preset',
+      async (preset, laboratoryName, address) => {
+        const { result } = await renderHookWithReady();
+        act(() => result.current.updateCountryPreset(preset));
+        expect(result.current.document.header).toMatchObject({
+          country: 'PARAGUAY',
+          laboratoryName,
+          address,
+        });
+      },
+    );
 
     it('updateWorkflowStatus changes the workflow status', async () => {
       const { result } = await renderHookWithReady();

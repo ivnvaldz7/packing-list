@@ -12,7 +12,6 @@ type LayoutProps = {
   activeStage: Stage;
   onStageChange: (stage: Stage) => void;
   onFinalize?: () => void;
-  onSummaryClick?: () => void;
 
   /* ─── Topbar ─── */
   title: string;
@@ -32,7 +31,6 @@ export const Layout = ({
   activeStage,
   onStageChange,
   onFinalize,
-  onSummaryClick,
   title,
   subtitle,
   isSaving,
@@ -48,12 +46,7 @@ export const Layout = ({
     <div className="min-h-screen bg-stone-100 text-stone-800 dark:bg-stone-950 dark:text-stone-100">
       {/* ─── Sidebar: solo desktop ─── */}
       <div className="hidden lg:block">
-        <Sidebar
-          activeStage={activeStage}
-          onStageChange={onStageChange}
-          onFinalize={onFinalize}
-          onSummaryClick={onSummaryClick}
-        />
+        <Sidebar activeStage={activeStage} onStageChange={onStageChange} onFinalize={onFinalize} />
       </div>
 
       {/* ─── Main content ─── */}
@@ -83,7 +76,6 @@ export const Layout = ({
           activeStage={activeStage}
           onStageChange={onStageChange}
           onFinalize={onFinalize}
-          onSummaryClick={onSummaryClick}
         />
       </div>
     </div>

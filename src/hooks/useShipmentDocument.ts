@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getCountryPreset } from '../data/countries';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getCountryPreset, type CountryPresetValue } from '../data/countries';
 import { productCatalog } from '../data/products';
 import {
   deleteDocument,
@@ -72,6 +72,9 @@ export const useShipmentDocument = () => {
   const [lastCreatedItemId, setLastCreatedItemId] = useState<string | null>(null);
   const [library, setLibrary] = useState<StoredDocumentSummary[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const pendingSaves = useRef(0);
+  const latestSaveRevision = useRef(0);
 
   useEffect(() => {
     let mounted = true;
@@ -129,37 +132,63 @@ export const useShipmentDocument = () => {
     };
   }, []);
 
+  const persistDocument = useCallback(
+    (documentToSave: ShipmentDocument, applyToState: boolean): Promise<void> => {
+      const revision = ++latestSaveRevision.current;
+      pendingSaves.current += 1;
+      setIsSaving(true);
+
+      const run = async (): Promise<void> => {
+        try {
+          await saveDocument(documentToSave);
+          await setActiveDocumentId(documentToSave.id);
+          if (revision === latestSaveRevision.current) {
+            setError(null);
+            if (applyToState) setDocument(documentToSave);
+            setLibrary((currentLibrary) => {
+              const nextSummary = summarizeDocument(documentToSave);
+              return [
+                nextSummary,
+                ...currentLibrary.filter((entry) => entry.id !== documentToSave.id),
+              ].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+            });
+          }
+        } catch (saveError) {
+          if (revision === latestSaveRevision.current) {
+            setError('No pudimos guardar los cambios en IndexedDB. Reintentá la acción.');
+          }
+          console.error(saveError);
+          throw saveError;
+        } finally {
+          pendingSaves.current -= 1;
+          if (pendingSaves.current === 0) setIsSaving(false);
+        }
+      };
+
+      const queued = saveQueue.current.then(run, run);
+      saveQueue.current = queued.catch(() => undefined);
+      return queued;
+    },
+    [],
+  );
+
+  const saveCurrentDocument = useCallback(
+    (nextDocument?: ShipmentDocument): Promise<void> =>
+      persistDocument(nextDocument ?? document, Boolean(nextDocument)),
+    [document, persistDocument],
+  );
+
   useEffect(() => {
     if (status === 'loading') {
       return;
     }
 
     const timeoutId = setTimeout(() => {
-      setIsSaving(true);
-      void saveDocument(document)
-        .then(() => setActiveDocumentId(document.id))
-        .then(() =>
-          setLibrary((currentLibrary) => {
-            const nextSummary = summarizeDocument(document);
-            const nextLibrary = currentLibrary.some((entry) => entry.id === document.id)
-              ? currentLibrary.map((entry) => (entry.id === document.id ? nextSummary : entry))
-              : [nextSummary, ...currentLibrary];
-
-            return [...nextLibrary].sort((left, right) =>
-              right.updatedAt.localeCompare(left.updatedAt),
-            );
-          }),
-        )
-        .then(() => setIsSaving(false))
-        .catch((saveError: unknown) => {
-          setError('No pudimos guardar los cambios en IndexedDB.');
-          setIsSaving(false);
-          console.error(saveError);
-        });
+      void persistDocument(document, false).catch(() => undefined);
     }, 600);
 
     return () => clearTimeout(timeoutId);
-  }, [document, status]);
+  }, [document, status, persistDocument]);
 
   const updateHeader = <K extends keyof DocumentHeader>(
     field: K,
@@ -186,6 +215,18 @@ export const useShipmentDocument = () => {
         },
       });
     });
+  };
+
+  const updateCountryPreset = (countryPresetValue: CountryPresetValue | ''): void => {
+    setDocument((current) =>
+      touch({
+        ...current,
+        header: {
+          ...current.header,
+          ...getCountryPreset(countryPresetValue),
+        },
+      }),
+    );
   };
 
   const updateWorkflowStatus = (workflowStatus: ShipmentWorkflowStatus): void => {
@@ -522,7 +563,9 @@ export const useShipmentDocument = () => {
     status,
     error,
     isSaving,
+    saveCurrentDocument,
     updateHeader,
+    updateCountryPreset,
     updateWorkflowStatus,
     createNewDocument,
     openStoredDocument,

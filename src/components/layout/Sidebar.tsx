@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { IconLabels, IconClipboard, IconPackage, IconList, IconCheck } from './Icons';
+import { IconLabels, IconClipboard, IconPackage, IconCheck } from './Icons';
 
 type Stage = 'carteles' | 'preparacion' | 'carga';
 
@@ -19,15 +19,9 @@ type SidebarProps = {
   activeStage: Stage;
   onStageChange: (stage: Stage) => void;
   onFinalize?: () => void;
-  onSummaryClick?: () => void;
 };
 
-export const Sidebar = ({
-  activeStage,
-  onStageChange,
-  onFinalize,
-  onSummaryClick,
-}: SidebarProps) => {
+export const Sidebar = ({ activeStage, onStageChange, onFinalize }: SidebarProps) => {
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-16 flex-col items-center border-r border-stone-200 bg-white/90 py-3 shadow-sm backdrop-blur-lg transition-all duration-200 dark:border-stone-800 dark:bg-stone-950/90">
       {/* ─── Logo ─── */}
@@ -65,20 +59,6 @@ export const Sidebar = ({
           );
         })}
       </nav>
-
-      {/* ─── Resumen ─── */}
-      <div className="mb-2">
-        <button
-          onClick={onSummaryClick}
-          title="Resumen"
-          className="group relative flex h-10 w-10 items-center justify-center rounded-lg text-stone-500 transition-all duration-150 hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200"
-        >
-          <IconList className="h-5 w-5" />
-          <span className="absolute left-full ml-3 hidden whitespace-nowrap rounded-md bg-stone-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg group-hover:block dark:bg-stone-100 dark:text-stone-900">
-            Resumen
-          </span>
-        </button>
-      </div>
 
       {/* ─── Finalizar ─── */}
       {onFinalize && (

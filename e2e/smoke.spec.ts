@@ -28,21 +28,32 @@ test.describe('App smoke tests', () => {
     // CartelesView title
     await expect(page.getByText('Carteles para pallets')).toBeVisible({ timeout: 5000 });
 
-    // Label count stepper
-    await expect(page.getByLabel('Cantidad de carteles')).toBeVisible();
+    const count = page.getByLabel('Cantidad de pallets');
+    await expect(count).toBeVisible();
+    await count.fill('4');
+    await expect(page.getByText('1 / 4')).toBeVisible();
+    await page.getByLabel('Siguiente').click();
+    await expect(page.getByText('2 / 4')).toBeVisible();
     await expect(page.getByText('Imprimir carteles')).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByText('Cargando borrador local')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.getByLabel('Cantidad de pallets')).toHaveValue('4');
+    await expect(page.getByText('1 / 4')).toBeVisible();
   });
 
   test('shows header form with invoice and country fields', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Cargando borrador local')).not.toBeVisible({ timeout: 10000 });
 
-    // DocumentHeaderForm is always visible — use more specific selectors
+    await page.getByRole('button', { name: 'Preparación', exact: true }).click();
     await expect(page.getByText('Preparación del documento')).toBeVisible();
     await expect(page.getByText('Factura N°')).toBeVisible();
     // "País" and "Transporte" inside the header section — scope to avoid print template duplicates
     await expect(page.locator('#header-section').getByText('País', { exact: true })).toBeVisible();
-    await expect(page.locator('#header-section').getByText('Transporte', { exact: true })).toBeVisible();
+    await expect(
+      page.locator('#header-section').getByText('Transporte', { exact: true }),
+    ).toBeVisible();
   });
 
   test('shows preparacion stage with pallet cards', async ({ page }) => {
@@ -97,15 +108,25 @@ test.describe('App smoke tests', () => {
     expect(theme).toBe('dark');
   });
 
-  test('shows document summary section', async ({ page }) => {
+  test('keeps stage-specific document preparation layout', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Cargando borrador local')).not.toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Preparación', exact: true }).click();
+    const header = page.locator('#header-section');
+    const pallet = page.getByText('Paleta 01');
+    await expect(header).toBeVisible();
+    expect(
+      await header.evaluate(
+        (node, other) =>
+          Boolean(node.compareDocumentPosition(other as Node) & Node.DOCUMENT_POSITION_FOLLOWING),
+        await pallet.elementHandle(),
+      ),
+    ).toBe(true);
 
-    // The summary section is always visible
-    await expect(page.getByText('Resumen consolidado de carga')).toBeVisible();
-
-    // Total paletas inside the summary section
-    await expect(page.locator('#summary-section').getByText('Total paletas')).toBeVisible();
+    await page.getByRole('button', { name: 'Carga final', exact: true }).click();
+    await expect(header).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Añadir paleta', exact: true })).toHaveCount(0);
+    await expect(page.getByText('Paleta 01')).toBeVisible();
   });
 
   test('data persists after page reload', async ({ page }) => {

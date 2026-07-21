@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DocumentLibrary } from './components/DocumentLibrary';
 import { DocumentHeaderForm } from './components/DocumentHeaderForm';
-import { DocumentSummary } from './components/DocumentSummary';
 import { Layout } from './components/layout/Layout';
 import { PalletLabelPrint } from './components/PalletLabelPrint';
 import { PrintDocumentView } from './components/PrintDocumentView';
@@ -16,6 +15,37 @@ import { CartelesView } from './views/CartelesView';
 import { CargaView } from './views/CargaView';
 import { PreparacionView } from './views/PreparacionView';
 
+const LABEL_COUNTS_STORAGE_KEY = 'shipment-label-counts';
+type LabelCountPreferences = Record<string, number>;
+
+export const loadLabelCountPreferences = (): LabelCountPreferences => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const parsed: unknown = JSON.parse(
+      window.localStorage.getItem(LABEL_COUNTS_STORAGE_KEY) ?? '{}',
+    );
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        ([, value]) => Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 99,
+      ),
+    ) as LabelCountPreferences;
+  } catch {
+    return {};
+  }
+};
+
+export const saveLabelCountPreference = (documentId: string, count: number): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    const preferences = loadLabelCountPreferences();
+    preferences[documentId] = Math.max(1, Math.min(99, count));
+    window.localStorage.setItem(LABEL_COUNTS_STORAGE_KEY, JSON.stringify(preferences));
+  } catch {
+    // Storage can be unavailable; the in-memory preference still works.
+  }
+};
+
 const stageOrder: Record<string, number> = {
   carteles: 0,
   preparacion: 1,
@@ -25,7 +55,7 @@ const stageOrder: Record<string, number> = {
 const App = () => {
   const [activeStage, setActiveStage] = useState<'carteles' | 'preparacion' | 'carga'>('carteles');
   const [activePalletId, setActivePalletId] = useState<string | null>(null);
-  const [labelCount, setLabelCount] = useState(1);
+  const [labelCountPreferences, setLabelCountPreferences] = useState(loadLabelCountPreferences);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') {
@@ -45,7 +75,9 @@ const App = () => {
     status,
     error,
     isSaving,
+    saveCurrentDocument,
     updateHeader,
+    updateCountryPreset,
     updateWorkflowStatus,
     createNewDocument,
     openStoredDocument,
@@ -59,6 +91,11 @@ const App = () => {
     updateItem,
     removeItem,
   } = useShipmentDocument();
+  const labelCount = labelCountPreferences[document.id] ?? Math.max(1, document.pallets.length);
+  const handleLabelCountChange = (count: number): void => {
+    saveLabelCountPreference(document.id, count);
+    setLabelCountPreferences((current) => ({ ...current, [document.id]: count }));
+  };
   const validation = validateShipmentDocument(
     document,
     activeStage === 'carteles' ? 'preparacion' : activeStage,
@@ -112,25 +149,40 @@ const App = () => {
     setActivePalletId(palletId);
   };
 
-  const handleFinalize = () => {
-    if (!window.confirm('¿Finalizar la lista de empaque? Una vez finalizada no se puede editar.')) {
-      return;
+  const runAfterSave = async (action: () => void, nextDocument = document): Promise<void> => {
+    if (isSaving) return;
+    try {
+      await saveCurrentDocument(nextDocument);
+      action();
+    } catch {
+      // The hook exposes a recoverable error; output stays blocked.
     }
+  };
 
-    updateWorkflowStatus('finalizada');
-    printShipmentDocument();
+  const handleFinalize = async (): Promise<void> => {
+    if (
+      isSaving ||
+      !window.confirm('¿Finalizar la lista de empaque? Una vez finalizada no se puede editar.')
+    )
+      return;
+    const finalizedDocument = {
+      ...document,
+      workflowStatus: 'finalizada' as const,
+      updatedAt: new Date().toISOString(),
+    };
+    await runAfterSave(printShipmentDocument, finalizedDocument);
   };
 
   const isReadOnly = document.workflowStatus === 'finalizada';
 
-  const handleExportExcel = () => {
-    exportShipmentDocumentXlsx(document, computedPallets, totals);
+  const handleExportExcel = async (): Promise<void> => {
+    await runAfterSave(() => exportShipmentDocumentXlsx(document, computedPallets, totals));
   };
 
-  const handleSummaryClick = () => {
-    window.document.getElementById('summary-section')?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
+  const handlePrintLabels = async (): Promise<void> => {
+    await runAfterSave(() => {
+      window.document.body.classList.add('printing-labels-only');
+      window.print();
     });
   };
 
@@ -174,11 +226,10 @@ const App = () => {
         activeStage={activeStage}
         onStageChange={handleStageChange}
         onFinalize={!isReadOnly && validation.isValid ? handleFinalize : undefined}
-        onSummaryClick={handleSummaryClick}
         title="Lista de empaque"
         subtitle={document.header.invoiceNumber || 'Sin factura'}
         isSaving={isSaving}
-        onPrint={printShipmentDocument}
+        onPrint={() => void runAfterSave(printShipmentDocument)}
         onExportExcel={handleExportExcel}
         onNew={handleCreateNew}
         onOpenLibrary={() => setIsLibraryOpen(true)}
@@ -191,6 +242,24 @@ const App = () => {
             {error}
           </div>
         ) : null}
+
+        {/* ─── Header form (siempre visible) ─── */}
+        {activeStage === 'preparacion' && (
+          <motion.section
+            id="header-section"
+            className="mb-8"
+            variants={fadeSlideUp}
+            initial="hidden"
+            animate="visible"
+          >
+            <DocumentHeaderForm
+              header={document.header}
+              errors={validation.headerErrors}
+              onChange={updateHeader}
+              readOnly={isReadOnly}
+            />
+          </motion.section>
+        )}
 
         {/* ─── Stage views with AnimatePresence ─── */}
         <AnimatePresence mode="wait" custom={stageDirection}>
@@ -206,7 +275,10 @@ const App = () => {
               <CartelesView
                 document={document}
                 labelCount={labelCount}
-                onLabelCountChange={setLabelCount}
+                onLabelCountChange={handleLabelCountChange}
+                onCountryChange={updateCountryPreset}
+                onPrint={handlePrintLabels}
+                disabled={isSaving}
               />
             )}
 
@@ -256,39 +328,6 @@ const App = () => {
             )}
           </motion.div>
         </AnimatePresence>
-
-        {/* ─── Header form (siempre visible) ─── */}
-        <motion.section
-          id="header-section"
-          className="mb-8"
-          variants={fadeSlideUp}
-          initial="hidden"
-          animate="visible"
-        >
-          <DocumentHeaderForm
-            header={document.header}
-            errors={validation.headerErrors}
-            onChange={updateHeader}
-            readOnly={isReadOnly}
-          />
-        </motion.section>
-
-        {/* ─── Summary ─── */}
-        <motion.section
-          id="summary-section"
-          className="mb-8"
-          variants={fadeSlideUp}
-          initial="hidden"
-          animate="visible"
-        >
-          <DocumentSummary
-            document={document}
-            totalNetWeightKg={totals.totalNetWeightKg}
-            totalGrossWeightKg={totals.totalGrossWeightKg}
-            totalBoxes={totals.totalBoxes}
-            isValid={validation.isValid}
-          />
-        </motion.section>
 
         {/* ─── Footer ─── */}
         <motion.footer

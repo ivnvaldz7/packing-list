@@ -91,15 +91,6 @@ export const CargaView = ({
             paleta por vez con sus productos, lotes y cantidades definitivas.
           </p>
         </div>
-        {!readOnly && (
-          <button
-            type="button"
-            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
-            onClick={onAddPallet}
-          >
-            Añadir paleta
-          </button>
-        )}
       </div>
 
       {!hasPallets ? (
