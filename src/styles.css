@@ -40,11 +40,11 @@
 }
 
 .print-document {
-  color: #1a1a1a;
+  color: #17201b;
   background: #fff;
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  font-size: 9.5px;
-  line-height: 1.45;
+  font-size: 9px;
+  line-height: 1.4;
 }
 
 /* ═══ HEADER ═══ */
@@ -52,10 +52,10 @@
 .print-hdr {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1.5px solid #bbb;
+  gap: 18px;
+  margin-bottom: 10px;
+  padding-bottom: 9px;
+  border-bottom: 2px solid #007a36;
 }
 
 .print-hdr-titles {
@@ -65,46 +65,78 @@
 
 .print-hdr-title {
   margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
 }
 
 .print-hdr-subtitle {
-  margin: 1px 0 0;
-  font-size: 8.5px;
-  color: #777;
+  margin: 0;
+  font-size: 8px;
+  color: #59645d;
 }
 
-/* Meta table */
-.print-meta {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 8px;
-}
-
-.print-meta td {
-  padding: 2px 6px;
-  border: 1px solid #d4d4d4;
-}
-
-.print-meta-lbl {
-  width: 12%;
-  font-size: 7.5px;
+.print-hdr-kicker {
+  margin: 0 0 2px;
+  color: #007a36;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #777;
-  font-weight: 600;
-  background: #f7f7f7;
 }
 
-.print-meta-val {
-  width: 38%;
-  font-size: 9px;
+.print-primary-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.print-primary-field {
+  padding: 7px 9px;
+  border-left: 3px solid #00a949;
+  background: #f2f6f3;
+}
+
+.print-primary-label,
+.print-meta dt {
+  display: block;
+  margin: 0 0 2px;
+  color: #59645d;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.print-primary-value {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-meta {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  margin: 0 0 12px;
+  border-top: 1px solid #d8dfda;
+  border-bottom: 1px solid #d8dfda;
+}
+
+.print-meta-field {
+  min-width: 0;
+  padding: 6px 8px;
+  border-right: 1px solid #d8dfda;
+}
+
+.print-meta-field--full {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e4e8e5;
+}
+
+.print-meta dd {
+  margin: 0;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ═══ TABLE ═══ */
@@ -112,19 +144,20 @@
 .print-tbl {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 6px;
+  margin-bottom: 0;
 }
 
 .print-tbl-th {
-  background: #f0f0f0;
+  background: #26372d;
+  color: #fff;
   font-size: 7.5px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-weight: 700;
   padding: 4px 5px;
   text-align: left;
-  border: 1px solid #ccc;
-  color: #333;
+  border: 0;
+  border-bottom: 1px solid #26372d;
 }
 
 .print-tbl-th--num {
@@ -132,9 +165,14 @@
 }
 
 .print-tbl-cell {
-  border: 1px solid #d4d4d4;
-  padding: 3px 5px;
+  border: 0;
+  border-bottom: 1px solid #dfe4e1;
+  padding: 4px 5px;
   vertical-align: middle;
+}
+
+.print-tbl tbody tr:nth-child(even) {
+  background: #f5f7f5;
 }
 
 .print-tbl-cell--mono {
@@ -163,17 +201,17 @@
 /* ═══ PALLET SECTIONS ═══ */
 
 .print-section {
-  margin-bottom: 8px;
+  margin-bottom: 11px;
 }
 
 .print-section-hdr {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 3px;
-  padding: 3px 4px;
-  background: #f5f5f5;
-  border: 1px solid #d4d4d4;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 7px;
+  background: #e8f2eb;
+  border-left: 3px solid #007a36;
   font-size: 10px;
 }
 
@@ -181,50 +219,85 @@
   font-weight: 700;
 }
 
+.print-section-index {
+  display: inline-block;
+  margin-right: 7px;
+  color: #007a36;
+  font-size: 8px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 .print-section-hdr-meta {
+  display: flex;
+  gap: 14px;
+  color: #47534b;
   font-size: 7.5px;
-  color: #888;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ═══ TOTALS ═══ */
 
 .print-totals {
-  border-top: 1.5px solid #bbb;
-  padding-top: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 2px solid #26372d;
 }
 
-.print-totals-tbl {
-  width: 100%;
-  border-collapse: collapse;
+.print-totals-counts,
+.print-weight-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
 }
 
-.print-totals-item {
-  text-align: center;
-  padding: 2px 4px;
-  border: 1px solid #e0e0e0;
-  width: 20%;
+.print-weight-summary {
+  grid-template-columns: 1fr 1fr;
 }
 
-.print-totals-label {
+.print-totals-counts div,
+.print-weight-summary div {
+  padding: 6px 7px;
+  background: #f2f5f3;
+}
+
+.print-totals span {
   display: block;
+  color: #59645d;
   font-size: 7px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #888;
-}
-
-.print-totals-value {
-  display: block;
-  font-size: 10.5px;
   font-weight: 700;
-  margin-top: 1px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.print-totals-ts {
-  margin: 4px 0 0;
-  text-align: right;
+.print-totals strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-weight-primary {
+  color: #fff;
+  background: #007a36 !important;
+}
+
+.print-weight-primary span {
+  color: #fff;
+}
+
+.print-document-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 5px;
+  border-top: 1px solid #d8dfda;
+  color: #6b746e;
   font-size: 7px;
-  color: #aaa;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ─── PRINT: CARTELES (PALLET LABELS) ─── */
@@ -380,6 +453,32 @@
 
   .print-only {
     display: block;
+  }
+
+  .print-document {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-section-hdr {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  .print-tbl thead {
+    display: table-header-group;
+  }
+
+  .print-tbl tr,
+  .print-tbl tbody tr:first-child {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-totals,
+  .print-document-footer {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 

@@ -9,8 +9,8 @@ import { PrintDocumentView } from './components/PrintDocumentView';
 import { useShipmentDocument } from './hooks/useShipmentDocument';
 import { fadeSlideUp, slideHorizontal } from './utils/animations';
 import { formatWeight } from './utils/format';
-import { exportShipmentDocumentPdf } from './utils/pdf';
 import { exportShipmentDocumentXlsx } from './utils/excel';
+import { printShipmentDocument, registerPrintCleanup } from './utils/print';
 import { validateShipmentDocument } from './utils/validation';
 import { CartelesView } from './views/CartelesView';
 import { CargaView } from './views/CargaView';
@@ -70,15 +70,7 @@ const App = () => {
   }, [theme]);
 
   useEffect(() => {
-    const handleAfterPrint = () => {
-      window.document.body.classList.remove('printing-labels-only');
-      window.document.body.classList.remove('printing-document-only');
-    };
-
-    window.addEventListener('afterprint', handleAfterPrint);
-    return () => {
-      window.removeEventListener('afterprint', handleAfterPrint);
-    };
+    return registerPrintCleanup();
   }, []);
 
   const [prevStage, setPrevStage] = useState(activeStage);
@@ -126,15 +118,10 @@ const App = () => {
     }
 
     updateWorkflowStatus('finalizada');
-    window.document.body.classList.add('printing-document-only');
-    window.print();
+    printShipmentDocument();
   };
 
   const isReadOnly = document.workflowStatus === 'finalizada';
-
-  const handlePrintPdf = () => {
-    void exportShipmentDocumentPdf(document, computedPallets, totals);
-  };
 
   const handleExportExcel = () => {
     exportShipmentDocumentXlsx(document, computedPallets, totals);
@@ -191,7 +178,7 @@ const App = () => {
         title="Lista de empaque"
         subtitle={document.header.invoiceNumber || 'Sin factura'}
         isSaving={isSaving}
-        onPrint={handlePrintPdf}
+        onPrint={printShipmentDocument}
         onExportExcel={handleExportExcel}
         onNew={handleCreateNew}
         onOpenLibrary={() => setIsLibraryOpen(true)}
