@@ -14,7 +14,7 @@ type TopbarProps = {
   isSaving?: boolean;
   onSave?: () => void;
   onPrint?: () => void;
-  onExportExcel?: () => void;
+  onExportPdf?: () => void;
   onNew?: () => void;
   onOpenLibrary?: () => void;
   theme: 'light' | 'dark';
@@ -27,7 +27,7 @@ export const Topbar = ({
   isSaving,
   onSave,
   onPrint,
-  onExportExcel,
+  onExportPdf,
   onNew,
   onOpenLibrary,
   theme,
@@ -78,11 +78,11 @@ export const Topbar = ({
             <IconPrinter className="h-4 w-4" />
           </button>
         )}
-        {onExportExcel && (
+        {onExportPdf && (
           <button
-            onClick={onExportExcel}
+            onClick={onExportPdf}
             disabled={isSaving}
-            title="Exportar a Excel"
+            title="Descargar PDF"
             className={btnClass}
           >
             <IconDownload className="h-4 w-4" />

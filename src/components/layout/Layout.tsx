@@ -19,7 +19,7 @@ type LayoutProps = {
   isSaving?: boolean;
   onSave?: () => void;
   onPrint?: () => void;
-  onExportExcel?: () => void;
+  onExportPdf?: () => void;
   onNew?: () => void;
   onOpenLibrary?: () => void;
   theme: 'light' | 'dark';
@@ -36,7 +36,7 @@ export const Layout = ({
   isSaving,
   onSave,
   onPrint,
-  onExportExcel,
+  onExportPdf,
   onNew,
   onOpenLibrary,
   theme,
@@ -57,7 +57,7 @@ export const Layout = ({
           isSaving={isSaving}
           onSave={onSave}
           onPrint={onPrint}
-          onExportExcel={onExportExcel}
+          onExportPdf={onExportPdf}
           onNew={onNew}
           onOpenLibrary={onOpenLibrary}
           theme={theme}

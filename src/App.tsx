@@ -8,7 +8,7 @@ import { PrintDocumentView } from './components/PrintDocumentView';
 import { useShipmentDocument } from './hooks/useShipmentDocument';
 import { fadeSlideUp, slideHorizontal } from './utils/animations';
 import { formatWeight } from './utils/format';
-import { exportShipmentDocumentXlsx } from './utils/excel';
+import { exportShipmentDocumentPdf } from './utils/pdf';
 import { printShipmentDocument, registerPrintCleanup } from './utils/print';
 import { validateShipmentDocument } from './utils/validation';
 import { CartelesView } from './views/CartelesView';
@@ -175,8 +175,8 @@ const App = () => {
 
   const isReadOnly = document.workflowStatus === 'finalizada';
 
-  const handleExportExcel = async (): Promise<void> => {
-    await runAfterSave(() => exportShipmentDocumentXlsx(document, computedPallets, totals));
+  const handleExportPdf = async (): Promise<void> => {
+    await runAfterSave(() => exportShipmentDocumentPdf(document, computedPallets, totals));
   };
 
   const handlePrintLabels = async (): Promise<void> => {
@@ -230,7 +230,7 @@ const App = () => {
         subtitle={document.header.invoiceNumber || 'Sin factura'}
         isSaving={isSaving}
         onPrint={() => void runAfterSave(printShipmentDocument)}
-        onExportExcel={handleExportExcel}
+        onExportPdf={handleExportPdf}
         onNew={handleCreateNew}
         onOpenLibrary={() => setIsLibraryOpen(true)}
         theme={theme}
